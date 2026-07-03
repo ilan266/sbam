@@ -1,0 +1,1991 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>SBAM! — Jeux de soirée</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;900&family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#100714; --card:#221130; --ink:#f6eefb; --dim:#a893b8;
+  --coral:#ff4d6d; --acid:#e8ff47; --cyan:#4de3ff; --violet:#b04dff; --orange:#ff9f45;
+  --radius:22px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--ink);overflow:hidden;user-select:none}
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(600px 400px at 85% -10%, rgba(176,77,255,.22), transparent 60%),
+             radial-gradient(500px 400px at -10% 110%, rgba(255,77,109,.18), transparent 60%);
+}
+body::after{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.05;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+body.boom{animation:boomflash .5s}
+@keyframes boomflash{0%{background:#ff4d6d}30%{background:#ffb347}100%{background:var(--bg)}}
+#app{position:relative;z-index:1;height:100%;max-width:480px;margin:0 auto;display:flex;flex-direction:column}
+.screen{display:none;flex-direction:column;height:100%;padding:22px 20px;animation:pop .35s cubic-bezier(.2,.9,.3,1.2);overflow-y:auto}
+.screen.on{display:flex}
+@keyframes pop{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}
+h1.logo{
+  font-family:'Unbounded';font-weight:900;font-size:clamp(56px,17vw,84px);line-height:.9;
+  letter-spacing:-.02em;transform:rotate(-3deg);color:var(--acid);
+  text-shadow:5px 5px 0 var(--coral),10px 10px 0 rgba(176,77,255,.5);
+  animation:logosway 7s ease-in-out infinite;
+}
+@keyframes logosway{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(-1.2deg) translateY(-5px)}}
+.shape{position:absolute;pointer-events:none;animation:float 6s ease-in-out infinite}
+.sh-ring{width:32px;height:32px;border:3px solid var(--violet);border-radius:50%;opacity:.5}
+.sh-dot{width:13px;height:13px;background:var(--coral);border-radius:50%;opacity:.6}
+.sh-cross{width:22px;height:22px;opacity:.55}
+.sh-cross::before,.sh-cross::after{content:"";position:absolute;left:50%;top:0;width:3px;height:100%;background:var(--acid);border-radius:2px}
+.sh-cross::before{transform:translateX(-50%) rotate(45deg)}
+.sh-cross::after{transform:translateX(-50%) rotate(-45deg)}
+.sh-tri{width:0;height:0;border-left:11px solid transparent;border-right:11px solid transparent;border-bottom:19px solid var(--cyan);opacity:.5}
+.sh-sq{width:15px;height:15px;border:3px solid var(--orange);opacity:.5;border-radius:3px}
+.sh-donut{width:22px;height:22px;border:5px solid var(--coral);border-radius:50%;opacity:.4}
+.sh-line{width:26px;height:4px;background:var(--violet);border-radius:2px;opacity:.5}
+.shape.drift{animation:drift 9s ease-in-out infinite}
+@keyframes drift{0%{transform:translate(0,0) rotate(0deg)}50%{transform:translate(14px,-24px) rotate(160deg)}100%{transform:translate(0,0) rotate(360deg)}}
+.pcard:nth-child(2)::after{content:"";position:absolute;inset:0;border-radius:18px;background:linear-gradient(120deg,transparent 30%,rgba(255,255,255,.13) 45%,transparent 60%);background-size:250% 100%;animation:shine 4.5s linear infinite}
+@keyframes shine{from{background-position:200% 0}to{background-position:-60% 0}}
+.who{display:flex;align-items:center;gap:9px;margin:16px 0 0;flex-wrap:wrap;animation:whoin .45s cubic-bezier(.2,.9,.3,1.45)}
+.who .wav{font-size:30px}
+.who .wnm{font-family:'Unbounded';font-weight:900;font-size:clamp(18px,6vw,26px);color:var(--acid)}
+.who.vs .wnm{font-size:clamp(14px,4.5vw,18px)}
+.who .wvs{font-family:'Unbounded';font-weight:900;font-size:11px;color:var(--coral);background:#2b1220;border:1px solid var(--coral);border-radius:99px;padding:4px 9px}
+@keyframes whoin{from{opacity:0;transform:translateY(12px) scale(.6)}to{opacity:1;transform:none}}
+.tag{font-size:14px;color:var(--dim);margin-top:18px;transform:rotate(-3deg)}
+h2{font-family:'Unbounded';font-weight:700;font-size:22px;margin-bottom:4px}
+.sub{color:var(--dim);font-size:13px;margin-bottom:18px}
+.seclbl{font-family:'Unbounded';font-size:12px;margin:14px 0 6px;display:flex;justify-content:space-between;align-items:center}
+.mini{font-family:'Sora';font-size:11px;color:var(--cyan);background:none;border:none;cursor:pointer;font-weight:600}
+.btn{
+  font-family:'Unbounded';font-weight:700;font-size:16px;border:none;border-radius:var(--radius);
+  padding:18px;width:100%;cursor:pointer;background:var(--acid);color:#181405;
+  box-shadow:0 6px 0 #9aab1e;transition:transform .08s, box-shadow .08s;
+}
+.btn:active{transform:translateY(4px);box-shadow:0 2px 0 #9aab1e}
+.btn.coral{background:var(--coral);color:#fff;box-shadow:0 6px 0 #a32040}
+.btn.coral:active{box-shadow:0 2px 0 #a32040}
+.btn.cyan{background:var(--cyan);color:#062830;box-shadow:0 6px 0 #2a8ba0}
+.btn.cyan:active{box-shadow:0 2px 0 #2a8ba0}
+.btn.ghost{background:transparent;color:var(--dim);box-shadow:none;font-size:13px;padding:12px}
+.btn:disabled{opacity:.35;pointer-events:none}
+#home{justify-content:space-between;padding-top:8vh;padding-bottom:30px}
+.confetti{position:absolute;font-size:26px;animation:float 5s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0) rotate(-8deg)}50%{transform:translateY(-16px) rotate(8deg)}}
+.hbadges{display:flex;gap:8px;margin-top:18px;transform:rotate(-3deg);flex-wrap:wrap}
+.hbadge{font-family:'Unbounded';font-size:9.5px;font-weight:700;padding:7px 12px;border-radius:99px;border:1px solid #3a2450;background:rgba(34,17,48,.75);color:var(--dim)}
+.hbadge.hot{border-color:var(--coral);color:#ff8aa1}
+.pile{position:relative;height:128px;margin:30px 0 0}
+.pcard{position:absolute;left:50%;width:148px;height:100px;border-radius:18px;background:var(--card);
+  border:1.5px solid rgba(255,255,255,.09);box-shadow:0 14px 34px rgba(0,0,0,.5);
+  display:flex;flex-direction:column;justify-content:center;align-items:center;gap:7px;
+  font-family:'Unbounded';font-size:9.5px;font-weight:700;letter-spacing:.05em;text-align:center;padding:0 6px}
+.pcard .pe{font-size:28px}
+.pcard:nth-child(1){transform:translateX(-92%) rotate(-9deg)}
+.pcard:nth-child(2){transform:translateX(-50%) translateY(-14px) rotate(2deg);z-index:2;border-color:var(--acid)}
+.pcard:nth-child(3){transform:translateX(-8%) rotate(10deg)}
+.marquee{overflow:hidden;white-space:nowrap;margin:0 -20px 16px;padding:11px 0;border-top:1px solid #2a1838;border-bottom:1px solid #2a1838}
+.marquee .track{display:inline-block;animation:scroll 26s linear infinite;font-family:'Unbounded';font-size:10.5px;font-weight:700;color:var(--dim)}
+.marquee .track b{color:var(--acid);margin:0 6px}
+@keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.chiprow{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0;min-height:52px}
+.chip{
+  display:flex;align-items:center;gap:8px;background:var(--card);border:2px solid var(--violet);
+  border-radius:99px;padding:8px 14px 8px 8px;font-weight:600;font-size:14px;
+  animation:pop .25s cubic-bezier(.2,.9,.3,1.4);
+}
+.chip .av{font-size:20px;cursor:pointer;background:#31204a;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center}
+.chip b{color:var(--coral);cursor:pointer;font-size:16px;line-height:1}
+.hint{font-size:10px;color:var(--dim);margin-top:-6px;margin-bottom:8px}
+.addrow{display:flex;gap:10px;margin-bottom:8px}
+input[type=text]{
+  flex:1;background:var(--card);border:2px solid #3a2450;border-radius:16px;
+  padding:14px 16px;color:var(--ink);font-family:'Sora';font-size:16px;outline:none;
+}
+input[type=text]:focus{border-color:var(--acid)}
+.addbtn{width:56px;border-radius:16px;border:none;background:var(--violet);color:#fff;font-size:26px;cursor:pointer}
+.opts{display:flex;gap:10px;margin:6px 0 8px}
+.opt{
+  flex:1;background:var(--card);border:2px solid #3a2450;border-radius:18px;
+  padding:14px 8px;text-align:center;cursor:pointer;transition:.15s;
+}
+.opt .em{font-size:26px;display:block;margin-bottom:6px}
+.opt .nm{font-family:'Unbounded';font-size:11px;font-weight:700}
+.opt .ds{font-size:10px;color:var(--dim);margin-top:4px}
+.opt.sel{border-color:var(--acid);background:#2b2110;transform:scale(1.04)}
+.ggrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:6px 0 8px}
+.gchip{
+  display:flex;align-items:center;gap:9px;background:var(--card);border:2px solid #3a2450;
+  border-radius:14px;padding:13px 12px;cursor:pointer;transition:.12s;font-size:13.5px;font-weight:700;
+}
+.gchip .ge{font-size:21px}
+.roulover{position:fixed;inset:0;background:rgba(16,7,20,.95);z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px;backdrop-filter:blur(4px)}
+.roulname{font-family:'Unbounded';font-weight:900;font-size:clamp(28px,9vw,42px);color:var(--acid);min-height:64px;text-align:center;animation:whoin .3s}
+.flipwrap{perspective:700px}
+.coin{width:120px;height:120px;margin:18px auto 0;position:relative;transform-style:preserve-3d}
+.coin.flip{animation:coinflip 2.6s linear forwards}
+@keyframes coinflip{
+  0%{transform:translateY(0) rotateX(0) scale(1)}
+  16%{transform:translateY(-90px) rotateX(720deg) scale(.86)}
+  40%{transform:translateY(-165px) rotateX(1800deg) scale(.5)}
+  62%{transform:translateY(-70px) rotateX(2520deg) scale(.8)}
+  80%{transform:translateY(14px) rotateX(3060deg) scale(1.3)}
+  90%{transform:translateY(-6px) rotateX(var(--endrot)) scale(1.1)}
+  100%{transform:translateY(0) rotateX(var(--endrot)) scale(1)}
+}
+.cshadow{width:92px;height:14px;border-radius:50%;background:rgba(0,0,0,.55);filter:blur(5px);margin:6px auto 0}
+.flipwrap.go .cshadow{animation:shadowflip 2.6s linear forwards}
+@keyframes shadowflip{
+  0%{transform:scale(1);opacity:.55}
+  40%{transform:scale(.32);opacity:.18}
+  80%{transform:scale(1.3);opacity:.65}
+  100%{transform:scale(1);opacity:.55}
+}
+.cface{position:absolute;inset:0;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Unbounded';font-weight:900;font-size:23px;letter-spacing:.04em;backface-visibility:hidden;background:radial-gradient(circle at 35% 28%,#ffeeb0,#eec14a 52%,#b78a1e 88%,#96700f);color:#5c430b;box-shadow:inset 0 3px 7px rgba(255,255,255,.55),inset 0 -5px 10px rgba(90,60,0,.5),0 10px 30px rgba(0,0,0,.5)}
+.cface::before{content:"";position:absolute;inset:9px;border-radius:50%;border:2.5px dashed rgba(92,67,11,.45)}
+.cface::after{content:"★ SBAM ★";position:absolute;bottom:13px;left:0;right:0;text-align:center;font-family:'Sora';font-weight:700;font-size:8.5px;letter-spacing:.28em;color:#7a5a10}
+.cface.front{transform:translateZ(5px)}
+.cface.back{transform:rotateX(180deg) translateZ(5px)}
+.cedge{position:absolute;inset:0;border-radius:50%;background:repeating-conic-gradient(#c69a26 0deg 5deg,#8f6a0e 5deg 10deg)}
+.dicewrap{perspective:640px;height:140px;display:flex;align-items:center;justify-content:center;margin:6px 0}
+.dice{width:84px;height:84px;position:relative;transform-style:preserve-3d}
+.dice.roll{animation:diceroll 2.2s cubic-bezier(.32,.85,.45,1) forwards}
+@keyframes diceroll{
+ 0%{transform:translateY(0) rotateX(0) rotateY(0) scale(1)}
+ 28%{transform:translateY(-125px) rotateX(540deg) rotateY(380deg) scale(.68)}
+ 55%{transform:translateY(4px) rotateX(1080deg) rotateY(760deg) scale(1.14)}
+ 72%{transform:translateY(-34px) rotateX(1200deg) rotateY(880deg) scale(.96)}
+ 86%{transform:translateY(2px) rotateX(1300deg) rotateY(960deg) scale(1.05)}
+ 100%{transform:translateY(0) rotateX(var(--ex)) rotateY(var(--ey)) scale(1)}
+}
+.dface{position:absolute;inset:0;background:linear-gradient(145deg,#fff8e8,#e7d9b8);border:2px solid #c9bb96;border-radius:16px;display:flex;align-items:center;justify-content:center;font-family:'Unbounded';font-weight:900;font-size:36px;color:#3b2f1e;box-shadow:inset 0 2px 5px rgba(255,255,255,.7),inset 0 -3px 6px rgba(120,95,40,.35)}
+.optgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.optbtn{font-family:'Unbounded';font-weight:700;font-size:12.5px;padding:14px 8px;border-radius:16px;border:2px solid #3a2450;background:#2c1a3c;color:var(--ink);cursor:pointer;transition:.15s}
+.optbtn.good{border-color:var(--acid);background:#2b2110;color:var(--acid);transform:scale(1.04)}
+.optbtn.bad{border-color:var(--coral);background:#2b1220;color:var(--coral)}
+.optbtn:disabled{cursor:default}
+.gchip.sel{border-color:var(--acid);background:#2b2110}
+.gchip.off{opacity:.45}
+.toggle{
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--card);border-radius:18px;padding:16px;margin:12px 0 20px;
+}
+.toggle small{display:block;color:var(--dim);font-size:11px;margin-top:3px}
+.sw{width:58px;height:32px;border-radius:99px;background:#3a2450;position:relative;cursor:pointer;transition:.2s;flex-shrink:0}
+.sw::after{content:"";position:absolute;top:4px;left:4px;width:24px;height:24px;border-radius:50%;background:#fff;transition:.2s}
+.sw.on{background:var(--coral)}
+.sw.on::after{left:30px}
+#game{padding:16px 18px;overflow:hidden}
+.hud{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:8px}
+.hud .cnt{font-family:'Unbounded';font-size:12px;color:var(--dim);white-space:nowrap}
+.bar{flex:1;height:6px;background:#2c1a3c;border-radius:99px;overflow:hidden}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--coral),var(--acid));border-radius:99px;transition:width .3s}
+.icobtn{background:none;border:none;color:var(--dim);font-size:20px;cursor:pointer}
+.gcard{
+  flex:1;display:flex;flex-direction:column;background:var(--card);border-radius:28px;
+  padding:26px 22px;position:relative;overflow:hidden;
+  box-shadow:0 20px 50px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.06);
+  animation:deal .4s cubic-bezier(.2,.9,.3,1.15);
+}
+@keyframes deal{from{opacity:0;transform:translateX(60px) rotate(4deg)}to{opacity:1;transform:none}}
+.gcard::before{content:"";position:absolute;inset:0;background:radial-gradient(400px 240px at 90% -10%, var(--mode-glow,rgba(232,255,71,.12)), transparent 65%);pointer-events:none}
+.badge{
+  align-self:flex-start;font-family:'Unbounded';font-weight:700;font-size:11px;letter-spacing:.08em;
+  padding:8px 14px;border-radius:99px;background:var(--mode-c,var(--acid));color:#151204;
+  transform:rotate(-2deg);margin-bottom:auto;
+}
+.prompt{
+  font-family:'Unbounded';font-weight:500;font-size:clamp(17px,5vw,23px);line-height:1.38;
+  margin:auto 0;padding:12px 0;
+}
+.prompt .pn{color:var(--acid);white-space:nowrap}
+.prompt .sx{display:block;margin-top:16px;font-family:'Sora';font-weight:600;font-size:14px;color:var(--coral)}
+.prompt .rl{display:block;margin-top:14px;font-family:'Sora';font-weight:400;font-size:12.5px;color:var(--dim);line-height:1.5}
+.reveal{margin:auto 0;text-align:center}
+.reveal .hidden-word{
+  font-family:'Unbounded';font-weight:900;font-size:clamp(24px,7vw,34px);color:var(--acid);
+  filter:blur(14px);transition:.25s;cursor:pointer;padding:8px;
+}
+.reveal .hidden-word.show{filter:none}
+.reveal p{color:var(--dim);font-size:12px;margin-top:10px}
+.timerwrap{text-align:center;margin:10px 0 4px}
+.timer{font-family:'Unbounded';font-weight:900;font-size:52px;color:var(--cyan)}
+.timer.hot{color:var(--coral);animation:shake .3s infinite}
+@keyframes shake{25%{transform:translateX(-2px)}75%{transform:translateX(2px)}}
+.bombzone{margin:auto 0;text-align:center}
+.bomb{font-size:90px;display:inline-block;animation:tick 1s ease-in-out infinite}
+@keyframes tick{0%,100%{transform:scale(1) rotate(-4deg)}50%{transform:scale(1.12) rotate(4deg)}}
+.bomb.fast{animation-duration:.35s}
+.cardbtns{display:flex;gap:10px;margin-top:20px}
+.cardDice{position:absolute;top:14px;right:14px;background:#31204a;border:1px solid #4a2f66;border-radius:12px;font-size:19px;padding:7px 10px;cursor:pointer;z-index:3;transition:.12s}
+.cardDice:active{transform:scale(.9)}
+.cardDice.duelBtn{right:62px}
+.roast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);max-width:86%;background:#2b1220;border:1.5px solid var(--coral);color:#ffd6de;font-size:13.5px;font-weight:600;padding:12px 16px;border-radius:16px;z-index:60;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.5);animation:roastin .3s cubic-bezier(.2,.9,.3,1.3)}
+.roast.winr{border-color:var(--acid);color:#f2ffd0;background:#232b10}
+@keyframes roastin{from{opacity:0;transform:translateX(-50%) translateY(16px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+.roast.out{transition:.35s;opacity:0;transform:translateX(-50%) translateY(10px)}
+.evbig{font-size:66px;text-align:center;margin-top:auto;animation:float 2.5s ease-in-out infinite}
+.evtitle{font-family:'Unbounded';font-weight:900;font-size:clamp(20px,6.5vw,26px);color:var(--acid);text-align:center;margin-top:8px}
+.persist{
+  background:#2b1220;border:1px dashed var(--coral);border-radius:14px;
+  padding:10px 12px;font-size:12px;color:#ffb3c2;margin-bottom:12px;
+}
+.persist b{color:var(--coral)}
+#end{justify-content:center;text-align:center}
+.troph{font-size:70px;animation:float 3s ease-in-out infinite}
+.stat{
+  background:var(--card);border-radius:18px;padding:16px;margin:8px 0;text-align:left;
+  display:flex;align-items:center;gap:14px;
+}
+.stat .ic{font-size:28px}
+.stat .lb{font-size:11px;color:var(--dim)}
+.stat .vl{font-family:'Unbounded';font-weight:700;font-size:15px}
+.foot{text-align:center;color:#5d4a6e;font-size:10px;padding:10px 0 4px}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <section class="screen on" id="home">
+    <div>
+      <span class="shape sh-ring" style="top:5%;left:6%"></span>
+      <span class="shape sh-cross" style="top:4%;right:10%;animation-delay:1.2s"></span>
+      <span class="shape sh-dot" style="top:26%;right:22%;animation-delay:.6s"></span>
+      <span class="shape sh-tri" style="top:40%;left:4%;animation-delay:1.8s"></span>
+      <span class="shape sh-dot" style="top:52%;right:8%;animation-delay:2.4s;background:var(--acid)"></span>
+      <span class="shape sh-ring" style="top:63%;left:12%;animation-delay:3s;border-color:var(--cyan);width:20px;height:20px"></span>
+      <span class="shape drift sh-sq" style="top:12%;left:38%"></span>
+      <span class="shape drift sh-donut" style="top:47%;right:30%;animation-delay:2s"></span>
+      <span class="shape drift sh-line" style="top:33%;left:22%;animation-delay:4s"></span>
+      <span class="shape sh-dot" style="top:70%;right:26%;animation-delay:1.4s;background:var(--cyan);width:9px;height:9px"></span>
+      <span class="shape drift sh-tri" style="top:58%;right:44%;animation-delay:5.5s;border-bottom-color:var(--acid)"></span>
+      <span class="shape sh-cross" style="top:74%;left:34%;animation-delay:2.8s;transform:scale(.75)"></span>
+      <span class="shape drift sh-sq" style="top:80%;right:12%;animation-delay:6.5s;border-color:var(--cyan)"></span>
+      <span class="shape sh-dot" style="top:16%;left:58%;animation-delay:3.6s;background:var(--violet)"></span>
+      <h1 class="logo">SBAM!</h1>
+      <p class="tag">Le jeu de soirée qui s'adapte à ton groupe.<br>Avec ou sans alcool. Toujours avec chaos.</p>
+      <div class="hbadges">
+        <span class="hbadge hot">33 JEUX</span>
+        <span class="hbadge">600+ CARTES</span>
+        <span class="hbadge">2 À 12 JOUEURS</span>
+        <span class="hbadge">ALCOOL OPTIONNEL</span>
+      </div>
+      <div class="pile">
+        <div class="pcard"><span class="pe">💣</span>LA BOMBE</div>
+        <div class="pcard"><span class="pe">🔟</span>C'EST UN 10 MAIS…</div>
+        <div class="pcard"><span class="pe">🕵️</span>UNDERCOVER</div>
+      </div>
+    </div>
+    <div>
+      <div class="marquee"><div class="track" id="mtrack"></div></div>
+      <button class="btn" onclick="go('players')">LANCER UNE PARTIE</button>
+      <button class="btn ghost">Réservé aux adultes · Buvez avec modération</button>
+    </div>
+  </section>
+
+  <section class="screen" id="players">
+    <h2>Qui joue ce soir ?</h2>
+    <p class="sub">Ajoute au moins 2 joueurs. Le téléphone circule.</p>
+    <div class="addrow">
+      <input type="text" id="pname" placeholder="Prénom…" maxlength="14" onkeydown="if(event.key==='Enter')addPlayer()">
+      <button class="addbtn" onclick="addPlayer()">+</button>
+    </div>
+    <div class="chiprow" id="chips"></div>
+    <p class="hint">Touche l'avatar d'un joueur pour le changer.</p>
+    <div style="margin-top:auto">
+      <button class="btn" id="toSettings" disabled onclick="go('settings')">CONTINUER →</button>
+      <button class="btn ghost" onclick="go('home')">← Retour</button>
+    </div>
+  </section>
+
+  <section class="screen" id="settings">
+    <h2>Règle l'ambiance</h2>
+    <p class="sub">Tout est modulable. Le jeu s'adapte, pas l'inverse.</p>
+
+    <div class="seclbl">INTENSITÉ</div>
+    <div class="opts" id="intensity">
+      <div class="opt sel" data-v="1"><span class="em">🧊</span><span class="nm">CHILL</span><div class="ds">Détente, zéro gêne</div></div>
+      <div class="opt" data-v="2"><span class="em">🌶️</span><span class="nm">CHAUFFE</span><div class="ds">Révélations & défis</div></div>
+      <div class="opt" data-v="3"><span class="em">🌋</span><span class="nm">CHAOS</span><div class="ds">Aucune pitié</div></div>
+    </div>
+
+    <div class="seclbl">DURÉE</div>
+    <div class="opts" id="duration">
+      <div class="opt" data-v="25"><span class="em">⚡</span><span class="nm">EXPRESS</span><div class="ds">~15 min</div></div>
+      <div class="opt sel" data-v="45"><span class="em">🎯</span><span class="nm">CLASSIQUE</span><div class="ds">~30 min</div></div>
+      <div class="opt" data-v="70"><span class="em">🌙</span><span class="nm">MARATHON</span><div class="ds">Toute la nuit</div></div>
+    </div>
+
+    <div class="toggle">
+      <div><b>Mode apéro</b><small>Activé : sanctions en gorgées.<br>Désactivé : gages, points et défis physiques.</small></div>
+      <div class="sw" id="alcSw" onclick="this.classList.toggle('on')"></div>
+    </div>
+
+    <div class="seclbl">JEUX <span style="display:flex;gap:14px"><button class="mini" onclick="allGames(true)">Tout</button><button class="mini" style="color:var(--coral)" onclick="allGames(false)">Aucun</button></span></div>
+    <p class="hint" style="margin-top:0">Mix total par défaut — ou compose ta partie en touchant les jeux.</p>
+    <div class="ggrid" id="ggrid"></div>
+
+    <div id="teamzone"></div>
+
+    <div style="margin-top:auto">
+      <button class="btn coral" id="goBtn" onclick="startGame()">C'EST PARTI</button>
+      <button class="btn ghost" onclick="go('players')">← Joueurs</button>
+    </div>
+  </section>
+
+  <section class="screen" id="game">
+    <div class="hud">
+      <span class="cnt" id="cnt">1/45</span>
+      <div class="bar"><i id="barfill" style="width:2%"></i></div>
+      <button class="icobtn" id="muteBtn" onclick="toggleMute()">🔊</button>
+      <button class="icobtn" onclick="endGame()">✕</button>
+    </div>
+    <div id="persistZone"></div>
+    <div id="eventZone"></div>
+    <div class="gcard" id="gcard"></div>
+  </section>
+
+  <section class="screen" id="end">
+    <div class="troph">🏆</div>
+    <h2 style="margin:14px 0 4px">Fin de partie !</h2>
+    <p class="sub">Les stats de la soirée :</p>
+    <div id="stats"></div>
+    <div style="margin-top:20px">
+      <button class="btn" onclick="replay()">ON REMET ÇA</button>
+      <button class="btn ghost" onclick="location.reload()">Nouvelle config</button>
+    </div>
+  </section>
+
+  <div id="roul" class="roulover" style="display:none"></div>
+
+  <div class="foot">SBAM! · prototype v1.8 · 33 jeux · 600+ cartes · événements surprise · jouez responsable</div>
+</div>
+
+<script>
+/* =====================================================
+   SBAM! v0.3 — 13 jeux, 240+ cartes
+   Nouveautés : sélection des jeux (mix ou à la carte),
+   C'est un 10 mais…, La Bombe, Chifoumi, Undercover,
+   avatars emoji, sons + vibrations.
+   ===================================================== */
+
+const MODES = {
+  verite:    {label:"VÉRITÉ",        e:"💬", c:"#4de3ff", glow:"rgba(77,227,255,.14)"},
+  action:    {label:"ACTION",        e:"⚡", c:"#e8ff47", glow:"rgba(232,255,71,.14)"},
+  jamais:    {label:"JE N'AI JAMAIS",e:"🙈", c:"#ff9f45", glow:"rgba(255,159,69,.14)"},
+  suscep:    {label:"LE + SUSCEPTIBLE", e:"👉", c:"#b04dff", glow:"rgba(176,77,255,.16)"},
+  duel:      {label:"DUEL",          e:"⚔️", c:"#ff4d6d", glow:"rgba(255,77,109,.16)"},
+  virus:     {label:"VIRUS",         e:"🦠", c:"#7dff8a", glow:"rgba(125,255,138,.14)"},
+  chrono:    {label:"CHRONO",        e:"⏱", c:"#4de3ff", glow:"rgba(77,227,255,.14)"},
+  prefere:   {label:"TU PRÉFÈRES",   e:"🤔", c:"#ffd166", glow:"rgba(255,209,102,.14)"},
+  mime:      {label:"MIME",          e:"🎭", c:"#ff9f45", glow:"rgba(255,159,69,.14)"},
+  dix:       {label:"C'EST UN 10 MAIS…", e:"🔟", c:"#ff9ff3", glow:"rgba(255,159,243,.16)"},
+  bombe:     {label:"LA BOMBE",      e:"💣", c:"#ff6b35", glow:"rgba(255,107,53,.16)"},
+  chifoumi:  {label:"CHIFOUMI",      e:"✌️", c:"#54e0c7", glow:"rgba(84,224,199,.14)"},
+  undercover:{label:"UNDERCOVER",    e:"🕵️", c:"#c9b6ff", glow:"rgba(201,182,255,.16)"},
+  menteur:   {label:"2 VÉRITÉS 1 MENSONGE", e:"🤥", c:"#9ef7a0", glow:"rgba(158,247,160,.14)"},
+  debat:     {label:"DÉBAT ABSURDE", e:"🎤", c:"#ffd166", glow:"rgba(255,209,102,.14)"},
+  entre2:    {label:"ENTRE DEUX",    e:"🆚", c:"#ff8ac2", glow:"rgba(255,138,194,.16)"},
+  killer:    {label:"MISSION SECRÈTE", e:"🎯", c:"#d0ff5e", glow:"rgba(208,255,94,.14)"},
+  petitbac:  {label:"PETIT BAC",     e:"🔤", c:"#7ad1ff", glow:"rgba(122,209,255,.14)"},
+  blindtest: {label:"BLIND TEST",    e:"🎵", c:"#ffb84d", glow:"rgba(255,184,77,.14)"},
+  quidit:    {label:"QUI A DIT ÇA ?", e:"❓", c:"#b7ffe0", glow:"rgba(183,255,224,.14)"},
+  anecdote:  {label:"LE FAIT FOU",   e:"🤯", c:"#ffe66d", glow:"rgba(255,230,109,.14)"},
+  vraifaux:  {label:"VRAI OU FAUX",  e:"⚖️", c:"#9bd1ff", glow:"rgba(155,209,255,.14)"},
+  capitales: {label:"CAPITALES",     e:"🌍", c:"#6ee7b7", glow:"rgba(110,231,183,.14)"},
+  quizg:     {label:"CULTURE G",     e:"🧠", c:"#f9a8d4", glow:"rgba(249,168,212,.14)"},
+  prix:      {label:"LE JUSTE PRIX", e:"💶", c:"#a3e635", glow:"rgba(163,230,53,.14)"},
+  drapeaux:  {label:"DRAPEAUX",      e:"🚩", c:"#fca5a5", glow:"rgba(252,165,165,.14)"},
+  plusmoins: {label:"PLUS OU MOINS", e:"📏", c:"#93c5fd", glow:"rgba(147,197,253,.14)"},
+  marques:   {label:"DEVINE LA MARQUE", e:"🏷️", c:"#fdba74", glow:"rgba(253,186,116,.14)"},
+  films:     {label:"FAIS DEVINER LE FILM", e:"🎬", c:"#c4b5fd", glow:"rgba(196,181,253,.14)"},
+  connais:   {label:"TU ME CONNAIS ?", e:"🫶", c:"#f0abfc", glow:"rgba(240,171,252,.16)"},
+  canari:    {label:"CANARI",        e:"🐤", c:"#fde047", glow:"rgba(253,224,71,.16)"},
+  parano:    {label:"PARANOÏA",      e:"🪙", c:"#fbbf24", glow:"rgba(251,191,36,.16)"},
+  des:       {label:"LE DÉ MAUDIT",  e:"🎲", c:"#e2e8f0", glow:"rgba(226,232,240,.14)"},
+};
+const EMOJIS=["🦁","🐸","🦊","🐼","🐙","🦄","🐯","🐰","🐨","🦖","🐷","🐵","🦉","🐺","🦋","🐳"];
+const FILMS_POOL=["Titanic","Le Roi Lion","Harry Potter à l'école des sorciers","Star Wars","Intouchables","Avatar","Jurassic Park","Les Bronzés font du ski","Le Seigneur des Anneaux","Pirates des Caraïbes","Retour vers le futur","Forrest Gump","Matrix","Gladiator","Le Dîner de Cons","Astérix & Obélix : Mission Cléopâtre","Shrek","Toy Story","Inception","Rocky","Les Dents de la mer","E.T.","Taxi","Bienvenue chez les Ch'tis","Ratatouille","Spider-Man","Fast and Furious","Hunger Games","Twilight","Le Grand Bleu","Léon","Le Fabuleux Destin d'Amélie Poulain","Interstellar","Top Gun","Dirty Dancing","Grease","La Grande Vadrouille","Coco","Batman : The Dark Knight","Pulp Fiction"];
+const EVENTS=[
+ {e:'⚡',t:"HAPPY HOUR",d:"Pendant les 3 prochaines cartes, toutes les sanctions sont <b style='color:var(--coral)'>DOUBLÉES</b> ! Bonne chance.",fx:'x2'},
+ {e:'👑',t:"ROI DU SILENCE",d:"30 secondes de silence TOTAL, à partir de maintenant. Le premier qui parle : {s}."},
+ {e:'✋',t:"RÉFLEXE",d:"Le DERNIER à poser sa main sur sa tête : {s} !"},
+ {e:'🔄',t:"GRAND ÉCHANGE",d:"Tout le monde change de place. Maintenant. Oui, même toi."},
+ {e:'🥂',t:"TOAST GÉNÉRAL",d:"Levez tous votre verre, trinquez, et {sip}. Le destin l'exige."},
+ {e:'💃',t:"FREEZE",d:"Statue générale pendant 10 secondes. Le premier qui bouge : {s}."},
+ {e:'🗳',t:"ÉLECTION ÉCLAIR",d:"À 3, pointez la personne la plus sage de la soirée. Pour se corrompre, elle {give}."},
+ {e:'🎁',t:"CADEAU DU DESTIN",d:"{p} {give}, juste parce que le destin l'aime bien. Personne ne discute."},
+ {e:'🔮',t:"PROPHÉTIE",d:"{p} désigne maintenant qui subira la PROCHAINE sanction à la place du perdant. Choisis bien."},
+ {e:'📸',t:"PHOTO DE GROUPE",d:"Selfie général obligatoire, MAINTENANT ! Le moins prêt sur la photo : {s}."},
+ {e:'🎤',t:"COMPLIMENT EXPRESS",d:"Chacun complimente son voisin de gauche. Le pire compliment (vote du groupe) : {s}."},
+ {e:'🌊',t:"LA OLA",d:"En partant de {p}, faites la ola ! Le moins motivé (vote) : {s}."},
+];
+
+const SANCTIONS = {
+  alc: {
+    1:["bois 1 gorgée","distribue 1 gorgée","trinque avec ton voisin : 1 gorgée chacun","choisis quelqu'un : vous buvez 1 gorgée ensemble"],
+    2:["bois 2 gorgées","distribue 2 gorgées","bois 1 gorgée et complimente ton voisin","bois 1 gorgée, et ton voisin de gauche aussi"],
+    3:["bois 3 gorgées","distribue 3 gorgées","bois 2 gorgées les yeux fermés","bois 2 gorgées et désigne quelqu'un qui en boit 1"]
+  },
+  soft: {
+    1:["fais 5 squats","raconte ton dernier fou rire","perds 1 point","fais le tour de la pièce en canard"],
+    2:["fais 10 squats","imite un animal choisi par le groupe","parle avec un accent jusqu'à ton prochain tour","tiens la planche 20 secondes"],
+    3:["fais 15 pompes ou la planche 45 sec","laisse le groupe fouiller ta galerie 20 sec (dernier écran !)","le groupe choisit ton prochain gage","garde une grimace pendant 2 cartes"]
+  }
+};
+
+/* ---- cartes : m = mode, l = intensité min, {p}/{p2} joueurs, {s} sanction ---- */
+const DECK_SRC = [
+/* ============ VÉRITÉ (30) ============ */
+{m:'verite',l:1,t:"{p}, quel est le pire cadeau qu'on t'ait jamais offert ?"},
+{m:'verite',l:1,t:"{p}, quelle est ta théorie du complot préférée (que tu crois un peu) ?"},
+{m:'verite',l:1,t:"{p}, quel talent inutile maîtrises-tu parfaitement ?"},
+{m:'verite',l:1,t:"{p}, quelle est la chose la plus enfantine que tu fais encore ?"},
+{m:'verite',l:1,t:"{p}, quelle habitude bizarre as-tu quand tu es seul(e) chez toi ?"},
+{m:'verite',l:1,t:"{p}, quel est ton plaisir coupable musical ? Chante le refrain."},
+{m:'verite',l:1,t:"{p}, montre ton temps d'écran de la semaine, ou {s}."},
+{m:'verite',l:1,t:"{p}, quel serait le titre de ta biographie ?"},
+{m:'verite',l:1,t:"{p}, quel aliment que tout le monde adore détestes-tu ?"},
+{m:'verite',l:1,t:"{p}, décris ton pire look de l'histoire, en détail."},
+{m:'verite',l:2,t:"{p}, quel est ton plus gros mensonge à tes parents ? Réponds ou {s}."},
+{m:'verite',l:2,t:"{p}, quelle personne de cette pièce te ressemble le plus ? Justifie."},
+{m:'verite',l:2,t:"{p}, quel message regrettes-tu le plus d'avoir envoyé ? Réponds ou {s}."},
+{m:'verite',l:2,t:"{p}, c'est quoi ton red flag à toi ? Sois honnête ou {s}."},
+{m:'verite',l:2,t:"{p}, montre ta dernière recherche Google, ou {s}."},
+{m:'verite',l:2,t:"{p}, as-tu déjà simulé une maladie pour éviter un truc ? Raconte."},
+{m:'verite',l:2,t:"{p}, quel est le pire surnom qu'on t'ait donné, et pourquoi ?"},
+{m:'verite',l:2,t:"{p}, qui ici connaîtrait le mieux tes secrets ? La personne confirme ?"},
+{m:'verite',l:2,t:"{p}, quel est ton achat le plus cher fait sur un coup de tête ?"},
+{m:'verite',l:2,t:"{p}, quel mensonge racontes-tu le plus souvent ?"},
+{m:'verite',l:3,t:"{p}, montre la dernière photo de ta galerie ou {s}."},
+{m:'verite',l:3,t:"{p}, raconte ton pire date. Détails obligatoires, ou {s}."},
+{m:'verite',l:3,t:"{p}, si tu devais échanger ta vie avec quelqu'un ici, qui et pourquoi ? Réponds ou {s}."},
+{m:'verite',l:3,t:"{p}, quel secret le groupe ignore-t-il sur toi ? Balance ou {s}."},
+{m:'verite',l:3,t:"{p}, montre ta dernière conversation (masque les noms si tu veux) ou {s}."},
+{m:'verite',l:3,t:"{p}, ta pire arnaque ou entourloupe, même petite ? Avoue ou {s}."},
+{m:'verite',l:3,t:"{p}, qui a le meilleur style ici ? Et le pire ? Réponds ou {s} ×2."},
+{m:'verite',l:3,t:"{p}, quelle relation regrettes-tu le plus ? Réponds ou {s}."},
+{m:'verite',l:3,t:"{p}, quelle note sur 10 te donnerais-tu en soirée ? Le groupe corrige la note."},
+{m:'verite',l:3,t:"{p}, lis le message le plus gênant de ton téléphone, ou {s}."},
+
+/* ============ ACTION (30) ============ */
+{m:'action',l:1,t:"{p}, raconte l'intrigue de ton film préféré en 15 secondes. Le groupe doit deviner. Raté ? {s}."},
+{m:'action',l:1,t:"{p}, fais deviner un métier uniquement avec des bruits. Échec = {s}."},
+{m:'action',l:1,t:"{p}, invente un toast solennel pour {p2}. Applaudissements obligatoires."},
+{m:'action',l:1,t:"{p}, parle comme un présentateur météo jusqu'à ton prochain tour, ou {s}."},
+{m:'action',l:1,t:"{p}, traverse la pièce comme un mannequin. Le groupe note sur 10."},
+{m:'action',l:1,t:"{p}, raconte une anecdote en remplaçant tous les noms par « bibou »."},
+{m:'action',l:1,t:"{p}, invente une pub de 20 secondes pour l'objet le plus proche de toi."},
+{m:'action',l:1,t:"{p}, fais ton imitation d'un prof marquant. Le groupe devine le type de prof."},
+{m:'action',l:1,t:"{p}, chante « Joyeux anniversaire » à {p2} façon opéra."},
+{m:'action',l:1,t:"{p}, mime ton réveil du matin au ralenti."},
+{m:'action',l:2,t:"{p}, imite {p2} jusqu'à ce que quelqu'un devine qui c'est. Personne ne devine ? {s}."},
+{m:'action',l:2,t:"{p}, danse 20 secondes sans musique. Refus = {s}."},
+{m:'action',l:2,t:"{p}, appelle un contact au hasard et dis juste « c'est fait ». Refus = {s}."},
+{m:'action',l:2,t:"{p}, laisse {p2} regarder ta galerie photo pendant 10 secondes, ou {s}."},
+{m:'action',l:2,t:"{p}, raconte ton pire moment de honte en soirée, ou {s}."},
+{m:'action',l:2,t:"{p}, fais 3 compliments sincères à la personne avec qui tu as le moins parlé ce soir."},
+{m:'action',l:2,t:"{p}, envoie « j'ai un truc à t'avouer » à quelqu'un et ne réponds pas avant 10 min, ou {s}."},
+{m:'action',l:2,t:"{p}, imite {p2} en train de draguer. {p2} valide, sinon {s} pour toi."},
+{m:'action',l:2,t:"{p}, parle en rimes jusqu'à ton prochain tour. Chaque phrase ratée = {s}."},
+{m:'action',l:2,t:"{p}, laisse {p2} choisir ta photo de profil parmi ta galerie (tu valides avant de changer)."},
+{m:'action',l:3,t:"{p}, échange un vêtement avec {p2} jusqu'à la fin de la partie, ou {s}."},
+{m:'action',l:3,t:"{p}, envoie « il faut qu'on parle » à un contact choisi par le groupe, ou {s} ×2."},
+{m:'action',l:3,t:"{p}, laisse le groupe te faire une nouvelle coiffure. Refus = {s}."},
+{m:'action',l:3,t:"{p}, appelle quelqu'un et chante-lui un slow. Refus = {s} ×2."},
+{m:'action',l:3,t:"{p}, fais un discours de mariage improvisé pour {p2} et la personne de son choix."},
+{m:'action',l:3,t:"{p}, montre ton historique YouTube, ou {s}."},
+{m:'action',l:3,t:"{p}, refais ta pire photo de profil en live. Le groupe immortalise."},
+{m:'action',l:3,t:"{p}, laisse {p2} enregistrer un vocal de 10 sec sur ton téléphone (tu valides avant envoi), ou {s}."},
+{m:'action',l:3,t:"{p}, avoue ton crush le plus improbable (célébrités interdites), ou {s} ×2."},
+{m:'action',l:3,t:"{p}, poste dans un groupe familial « je vous expliquerai plus tard 🙏 », ou {s} ×2."},
+
+/* ============ JE N'AI JAMAIS (24) ============ */
+{m:'jamais',l:1,t:"Je n'ai jamais… fait semblant de connaître une chanson en soirée.<span class='sx'>Ceux qui l'ont fait : {s}.</span>"},
+{m:'jamais',l:1,t:"Je n'ai jamais… pleuré devant un dessin animé.<span class='sx'>Ceux qui l'ont fait : {s}.</span>"},
+{m:'jamais',l:1,t:"Je n'ai jamais… stalké quelqu'un jusqu'aux photos de 2014.<span class='sx'>Ceux qui l'ont fait : {s}.</span>"},
+{m:'jamais',l:1,t:"Je n'ai jamais… ri à une blague que je n'avais pas comprise.<span class='sx'>Ceux qui l'ont fait : {s}.</span>"},
+{m:'jamais',l:1,t:"Je n'ai jamais… mangé un truc tombé par terre (règle des 5 secondes).<span class='sx'>Ceux qui l'ont fait : {s}.</span>"},
+{m:'jamais',l:1,t:"Je n'ai jamais… parlé tout seul à voix haute en public.<span class='sx'>Ceux qui l'ont fait : {s}.</span>"},
+{m:'jamais',l:1,t:"Je n'ai jamais… pleuré à cause d'un match ou d'un jeu vidéo.<span class='sx'>Ceux qui l'ont fait : {s}.</span>"},
+{m:'jamais',l:1,t:"Je n'ai jamais… gardé un vêtement plus de 10 ans « au cas où ».<span class='sx'>Ceux qui l'ont fait : {s}.</span>"},
+{m:'jamais',l:2,t:"Je n'ai jamais… menti pour annuler un plan au dernier moment.<span class='sx'>Ceux qui l'ont fait : {s}.</span>"},
+{m:'jamais',l:2,t:"Je n'ai jamais… lu les messages de quelqu'un par-dessus son épaule.<span class='sx'>Ceux qui l'ont fait : {s}.</span>"},
+{m:'jamais',l:2,t:"Je n'ai jamais… fait un ghosting complet.<span class='sx'>Ceux qui l'ont fait : {s}.</span>"},
+{m:'jamais',l:2,t:"Je n'ai jamais… fait croire que j'avais lu un livre ou vu un film.<span class='sx'>Ceux qui l'ont fait : {s}.</span>"},
+{m:'jamais',l:2,t:"Je n'ai jamais… ri à un moment très, très inapproprié.<span class='sx'>Ceux qui l'ont fait racontent, ou {s}.</span>"},
+{m:'jamais',l:2,t:"Je n'ai jamais… supprimé un message juste avant qu'on le lise.<span class='sx'>Ceux qui l'ont fait : {s}.</span>"},
+{m:'jamais',l:2,t:"Je n'ai jamais… fait semblant de dormir pour éviter une conversation.<span class='sx'>Ceux qui l'ont fait : {s}.</span>"},
+{m:'jamais',l:2,t:"Je n'ai jamais… quitté une soirée sans dire au revoir à personne.<span class='sx'>Ceux qui l'ont fait : {s}.</span>"},
+{m:'jamais',l:2,t:"Je n'ai jamais… regardé le téléphone de quelqu'un sans permission.<span class='sx'>Ceux qui l'ont fait : {s}.</span>"},
+{m:'jamais',l:2,t:"Je n'ai jamais… inventé une excuse impliquant un animal.<span class='sx'>Ceux qui l'ont fait racontent, ou {s}.</span>"},
+{m:'jamais',l:3,t:"Je n'ai jamais… embrassé quelqu'un présent dans cette pièce.<span class='sx'>Ceux qui l'ont fait : {s}.</span>"},
+{m:'jamais',l:3,t:"Je n'ai jamais… menti à quelqu'un de cette pièce.<span class='sx'>Ceux qui l'ont fait : {s} et 30 sec d'explications.</span>"},
+{m:'jamais',l:3,t:"Je n'ai jamais… envoyé un message à la mauvaise personne (le pire genre).<span class='sx'>Ceux qui l'ont fait : {s} ou racontez.</span>"},
+{m:'jamais',l:3,t:"Je n'ai jamais… eu un crush sur l'ami(e) d'un(e) ex.<span class='sx'>Ceux qui l'ont fait : {s}.</span>"},
+{m:'jamais',l:3,t:"Je n'ai jamais… menti sur mon nombre de relations.<span class='sx'>Ceux qui l'ont fait : {s}.</span>"},
+{m:'jamais',l:3,t:"Je n'ai jamais… fait un rêve gênant sur quelqu'un de cette pièce.<span class='sx'>Ceux qui l'ont fait : {s}. On ne demande pas qui.</span>"},
+
+/* ============ LE PLUS SUSCEPTIBLE (20) ============ */
+{m:'suscep',l:1,t:"À 3, pointez la personne la plus susceptible… de devenir célèbre par accident.<span class='sx'>La plus pointée : {s}.</span>"},
+{m:'suscep',l:1,t:"À 3, pointez la personne la plus susceptible… de survivre à une apocalypse zombie.<span class='sx'>La moins pointée : {s} (désolé).</span>"},
+{m:'suscep',l:1,t:"À 3, pointez la personne la plus susceptible… d'oublier l'anniversaire de sa mère.<span class='sx'>La plus pointée : {s}.</span>"},
+{m:'suscep',l:1,t:"À 3, pointez la personne la plus susceptible… de se perdre dans sa propre ville.<span class='sx'>La plus pointée : {s}.</span>"},
+{m:'suscep',l:1,t:"À 3, pointez la personne la plus susceptible… d'adopter 5 chiens sur un coup de tête.<span class='sx'>La plus pointée : {s}.</span>"},
+{m:'suscep',l:1,t:"À 3, pointez la personne la plus susceptible… de pleurer devant une pub.<span class='sx'>La plus pointée : {s}.</span>"},
+{m:'suscep',l:1,t:"À 3, pointez la personne la plus susceptible… de devenir millionnaire puis de tout perdre.<span class='sx'>La plus pointée : {s}.</span>"},
+{m:'suscep',l:2,t:"À 3, pointez la personne la plus susceptible… de fouiller le téléphone de son/sa partenaire.<span class='sx'>La plus pointée : {s}.</span>"},
+{m:'suscep',l:2,t:"À 3, pointez la personne la plus susceptible… de finir la soirée en pleurant de rire.<span class='sx'>La plus pointée choisit qui {s}.</span>"},
+{m:'suscep',l:2,t:"À 3, pointez la personne la plus susceptible… de stalker son ex à 3h du matin.<span class='sx'>La plus pointée : {s}.</span>"},
+{m:'suscep',l:2,t:"À 3, pointez la personne la plus susceptible… de partir vivre à l'étranger sur un coup de tête.<span class='sx'>La plus pointée : {s}.</span>"},
+{m:'suscep',l:2,t:"À 3, pointez la personne la plus susceptible… d'oublier un rencard.<span class='sx'>La plus pointée : {s}.</span>"},
+{m:'suscep',l:2,t:"À 3, pointez la personne la plus susceptible… de devenir célèbre pour un bad buzz.<span class='sx'>La plus pointée : {s}.</span>"},
+{m:'suscep',l:2,t:"À 3, pointez la personne la plus susceptible… d'embellir (beaucoup) son CV.<span class='sx'>La plus pointée : {s}.</span>"},
+{m:'suscep',l:2,t:"À 3, pointez la personne la plus susceptible… d'envoyer un vocal de 4 minutes pour rien.<span class='sx'>La plus pointée : {s}.</span>"},
+{m:'suscep',l:3,t:"À 3, pointez la personne la plus susceptible… d'avoir un crush secret dans cette pièce.<span class='sx'>La plus pointée : {s} ou avoue.</span>"},
+{m:'suscep',l:3,t:"À 3, pointez la personne la plus susceptible… de tout balancer après deux verres.<span class='sx'>La plus pointée : {s}.</span>"},
+{m:'suscep',l:3,t:"À 3, pointez la personne la plus susceptible… d'avoir un compte secret.<span class='sx'>La plus pointée : {s} ou montre ses applis.</span>"},
+{m:'suscep',l:3,t:"À 3, pointez la personne la plus susceptible… d'envoyer un message qu'elle regrettera ce soir.<span class='sx'>La plus pointée donne son téléphone à son voisin 5 min, ou {s}.</span>"},
+{m:'suscep',l:3,t:"À 3, pointez la personne la plus susceptible… de finir en couple avec quelqu'un de cette pièce.<span class='sx'>La plus pointée : {s}.</span>"},
+
+/* ============ DUEL (18) ============ */
+{m:'duel',l:1,t:"{p} vs {p2} : concours de regard. Le premier qui rit ou cligne : {s}."},
+{m:'duel',l:1,t:"{p} vs {p2} : citez alternativement des marques de céréales. Le premier qui sèche : {s}."},
+{m:'duel',l:1,t:"{p} vs {p2} : citez alternativement des capitales. Le premier qui sèche : {s}."},
+{m:'duel',l:1,t:"{p} vs {p2} : concours de grimaces. Le groupe vote, le perdant : {s}."},
+{m:'duel',l:1,t:"{p} vs {p2} : récitez l'alphabet à l'envers le plus vite possible. Le plus lent : {s}."},
+{m:'duel',l:1,t:"{p} vs {p2} : celui qui tient le plus longtemps sans sourire pendant que le groupe fait tout pour. Le perdant : {s}."},
+{m:'duel',l:2,t:"{p} vs {p2} : bras de fer. Le perdant : {s}."},
+{m:'duel',l:2,t:"{p} vs {p2} : le groupe pose une question, la réponse la plus drôle gagne. Le perdant : {s}."},
+{m:'duel',l:2,t:"{p} vs {p2} : battle de danse, 15 secondes chacun. Le groupe vote, le perdant : {s}."},
+{m:'duel',l:2,t:"{p} vs {p2} : « ni oui ni non » en face à face, 30 secondes. Le premier piégé : {s}."},
+{m:'duel',l:2,t:"{p} vs {p2} : concours d'anecdotes. La plus folle gagne (vote du groupe). Le perdant : {s}."},
+{m:'duel',l:2,t:"{p} vs {p2} : chacun fait deviner un maximum de mots au groupe en 30 sec. Le moins bon score : {s}."},
+{m:'duel',l:3,t:"{p} vs {p2} : compliment battle. Complimentez-vous jusqu'à ce que l'un craque de rire. Le perdant : {s}."},
+{m:'duel',l:3,t:"{p} vs {p2} : chacun révèle un truc gênant sur l'autre. Le groupe vote le plus croustillant. Le perdant : {s}."},
+{m:'duel',l:3,t:"{p} vs {p2} : imitez-vous mutuellement, 20 secondes chacun. Le groupe vote, le perdant : {s}."},
+{m:'duel',l:3,t:"{p} vs {p2} : révélez avec amour le pire défaut de l'autre. Le plus juste (vote) gagne, le perdant : {s}."},
+{m:'duel',l:3,t:"{p} vs {p2} : battle de drague ringarde sur un(e) volontaire. Le perdant (vote) : {s}."},
+{m:'duel',l:3,t:"{p} vs {p2} : racontez votre pire honte. La moins pire : {s}."},
+
+/* ============ VIRUS (12) ============ */
+{m:'virus',l:1,t:"VIRUS : interdiction de dire « oui » ou « non ». Chaque infraction = {s}.",end:"Le virus « oui/non » est guéri. Vous pouvez reparler normalement."},
+{m:'virus',l:1,t:"VIRUS : {p} devient l'écho — il/elle doit répéter le dernier mot de chaque carte lue. Oubli = {s}.",end:"{p} n'est plus l'écho. Silence apprécié."},
+{m:'virus',l:1,t:"VIRUS : interdiction de croiser les bras. Chaque infraction = {s}.",end:"Virus des bras guéri. Croisez tout ce que vous voulez."},
+{m:'virus',l:1,t:"VIRUS : {p} doit applaudir après chaque carte. Oubli = {s}.",end:"{p} peut arrêter d'applaudir. Bravo quand même."},
+{m:'virus',l:2,t:"VIRUS : interdit de prononcer les prénoms. Utilisez des surnoms. Infraction = {s}.",end:"Virus des prénoms guéri. Retrouvez vos identités."},
+{m:'virus',l:2,t:"VIRUS : {p} doit finir toutes ses phrases par « …c'est mon avis ». Oubli = {s}.",end:"{p} est libéré(e). C'est mon avis."},
+{m:'virus',l:2,t:"VIRUS : interdit de dire « moi ». Infraction = {s}.",end:"Le virus du « moi » est guéri. Parlez de vous librement."},
+{m:'virus',l:2,t:"VIRUS : {p} devient le majordome. Tout le monde l'appelle « James » et lui donne des mini-ordres polis. Refus d'obéir = {s} pour James.",end:"James est libéré de ses fonctions. Applaudissements."},
+{m:'virus',l:2,t:"VIRUS : avant de parler, il faut lever la main et attendre que quelqu'un dise « accordé ». Infraction = {s}.",end:"Fin du protocole parlementaire. Parlez librement."},
+{m:'virus',l:3,t:"VIRUS : tout le monde doit parler en chuchotant. Le premier qui parle fort : {s}.",end:"FIN DU CHUCHOTEMENT. VOUS POUVEZ CRIER."},
+{m:'virus',l:3,t:"VIRUS : chacun doit fixer {p} dans les yeux en lui parlant, sans exception. Infraction = {s}.",end:"{p} n'est plus le centre de l'attention. Reposez vos yeux."},
+{m:'virus',l:3,t:"VIRUS : interdiction de rire. Oui, c'est impossible. Chaque rire = {s}.",end:"Vous pouvez rire à nouveau. Et vous allez le faire."},
+
+/* ============ CHRONO (16) ============ */
+{m:'chrono',l:1,t:"{p}, cite 8 pays d'Europe avant la fin du chrono ! Échec = {s}.",timer:20},
+{m:'chrono',l:1,t:"{p}, cite 6 films avec un chiffre dans le titre ! Échec = {s}.",timer:25},
+{m:'chrono',l:1,t:"{p}, cite 10 prénoms commençant par M ! Échec = {s}.",timer:20},
+{m:'chrono',l:1,t:"{p}, cite 7 marques de voitures ! Échec = {s}.",timer:15},
+{m:'chrono',l:1,t:"{p}, cite 6 animaux à plumes ! Échec = {s}.",timer:20},
+{m:'chrono',l:1,t:"{p}, cite 8 objets qu'on trouve dans une salle de bain ! Échec = {s}.",timer:20},
+{m:'chrono',l:2,t:"{p}, fais rire {p2} avant la fin du chrono. Échec = {s}.",timer:30},
+{m:'chrono',l:2,t:"{p}, trouve 5 points communs entre toi et {p2} ! Échec = vous {s} tous les deux.",timer:30},
+{m:'chrono',l:2,t:"{p}, raconte ta journée sans dire « euh » ! Un seul « euh » = {s}.",timer:20},
+{m:'chrono',l:2,t:"{p}, fais deviner 3 émotions uniquement avec ton visage ! Échec = {s}.",timer:30},
+{m:'chrono',l:2,t:"{p}, cite 5 choses que tu apprécies chez {p2} ! Échec = {s}.",timer:20},
+{m:'chrono',l:2,t:"{p}, tiens en équilibre sur un pied, les yeux fermés ! Échec = {s}.",timer:30},
+{m:'chrono',l:3,t:"{p}, convaincs le groupe que tu es innocent(e) d'un crime qu'il invente. Vote à la fin. Coupable = {s}.",timer:40},
+{m:'chrono',l:3,t:"{p}, vends au groupe l'objet le plus nul de la pièce. S'il n'est pas convaincu = {s}.",timer:40},
+{m:'chrono',l:3,t:"{p}, fais un stand-up de 30 secondes sur {p2}. Si personne ne rit = {s}.",timer:30},
+{m:'chrono',l:3,t:"{p}, défends une opinion absurde choisie par le groupe. S'il n'est pas convaincu = {s}.",timer:40},
+
+/* ============ TU PRÉFÈRES (20) ============ */
+{m:'prefere',l:1,t:"Tu préfères… ne plus jamais manger de fromage, ou ne plus jamais manger de dessert ?<span class='sx'>Votez à main levée. La minorité : {s}.</span>"},
+{m:'prefere',l:1,t:"Tu préfères… connaître la date de ta mort, ou la cause ?<span class='sx'>Votez. La minorité : {s}.</span>"},
+{m:'prefere',l:1,t:"Tu préfères… avoir toujours trop chaud, ou toujours trop froid ?<span class='sx'>Votez. La minorité : {s}.</span>"},
+{m:'prefere',l:1,t:"Tu préfères… ne plus jamais écouter de musique, ou ne plus jamais regarder de séries ?<span class='sx'>Votez. La minorité : {s}.</span>"},
+{m:'prefere',l:1,t:"Tu préfères… voler mais à 1 mètre du sol max, ou être invisible mais seulement quand personne ne regarde ?<span class='sx'>Votez. La minorité : {s}.</span>"},
+{m:'prefere',l:1,t:"Tu préfères… parler toutes les langues, ou parler aux animaux ?<span class='sx'>Votez. La minorité : {s}.</span>"},
+{m:'prefere',l:1,t:"Tu préfères… un an sans internet, ou un an sans voir tes amis en vrai ?<span class='sx'>Votez. La minorité : {s}.</span>"},
+{m:'prefere',l:2,t:"Tu préfères… que tout le monde lise tes pensées pendant 1 jour, ou ton historique pendant 1 an ?<span class='sx'>Votez. La minorité : {s}.</span>"},
+{m:'prefere',l:2,t:"Tu préfères… être riche et détesté, ou pauvre et adoré ?<span class='sx'>Votez. La minorité justifie ou {s}.</span>"},
+{m:'prefere',l:2,t:"Tu préfères… que tout le monde voie tes photos, ou entende tes vocaux ?<span class='sx'>Votez. La minorité : {s}.</span>"},
+{m:'prefere',l:2,t:"Tu préfères… revivre le collège, ou avoir directement 60 ans ?<span class='sx'>Votez. La minorité : {s}.</span>"},
+{m:'prefere',l:2,t:"Tu préfères… toujours dire ce que tu penses, ou ne plus jamais pouvoir parler de toi ?<span class='sx'>Votez. La minorité : {s}.</span>"},
+{m:'prefere',l:2,t:"Tu préfères… que ton patron voie ton historique, ou que tes parents lisent tes messages ?<span class='sx'>Votez. La minorité : {s}.</span>"},
+{m:'prefere',l:2,t:"Tu préfères… chanter tout ce que tu dis, ou danser partout où tu marches ?<span class='sx'>Votez. La minorité fait une démo, ou {s}.</span>"},
+{m:'prefere',l:3,t:"Tu préfères… que ton ex écrive tes bios de dating, ou que ta mère choisisse tes tenues pendant 1 an ?<span class='sx'>Votez. La minorité : {s}.</span>"},
+{m:'prefere',l:3,t:"Tu préfères… que ton crush soit révélé publiquement, ou ne plus jamais avoir de crush ?<span class='sx'>Votez. La minorité : {s}.</span>"},
+{m:'prefere',l:3,t:"Tu préfères… que ton ex fasse un discours sur toi devant tout le monde, ou que ta pire soirée soit filmée et diffusée ?<span class='sx'>Votez. La minorité : {s}.</span>"},
+{m:'prefere',l:3,t:"Tu préfères… un détecteur de mensonges actif à chaque soirée, ou perdre le souvenir de chaque soirée ?<span class='sx'>Votez. La minorité : {s}.</span>"},
+{m:'prefere',l:3,t:"Tu préfères… que le groupe lise ton dernier message envoyé, ou ta dernière recherche ?<span class='sx'>Votez. La minorité montre l'un des deux, ou {s}.</span>"},
+{m:'prefere',l:3,t:"Tu préfères… avouer ton pire mensonge à la personne concernée, ou {s} ×2 maintenant ?<span class='sx'>Chacun répond à voix haute.</span>"},
+
+/* ============ MIME (20) ============ */
+{m:'mime',l:1,t:"",word:"FLAMANT ROSE",timer:45},
+{m:'mime',l:1,t:"",word:"CONTRÔLE TECHNIQUE",timer:45},
+{m:'mime',l:1,t:"",word:"PIGEON PARISIEN",timer:45},
+{m:'mime',l:1,t:"",word:"LUNDI MATIN",timer:45},
+{m:'mime',l:1,t:"",word:"SELFIE DE VACANCES",timer:45},
+{m:'mime',l:1,t:"",word:"EMBOUTEILLAGE",timer:45},
+{m:'mime',l:1,t:"",word:"COURS DE ZUMBA",timer:45},
+{m:'mime',l:1,t:"",word:"DÉMÉNAGEMENT",timer:45},
+{m:'mime',l:2,t:"",word:"PREMIER RENCARD",timer:45},
+{m:'mime',l:2,t:"",word:"INFLUENCEUR",timer:45},
+{m:'mime',l:2,t:"",word:"PREMIER JOUR À LA SALLE DE SPORT",timer:60},
+{m:'mime',l:2,t:"",word:"SERVEUR DÉBORDÉ",timer:45},
+{m:'mime',l:2,t:"",word:"VOISIN RELOU",timer:45},
+{m:'mime',l:2,t:"",word:"MARIAGE PRINCIER",timer:60},
+{m:'mime',l:2,t:"",word:"CHEZ LE DENTISTE",timer:45},
+{m:'mime',l:3,t:"",word:"RÉUNION DE FAMILLE QUI DÉRAPE",timer:60},
+{m:'mime',l:3,t:"",word:"LENDEMAIN DE SOIRÉE DIFFICILE",timer:45},
+{m:'mime',l:3,t:"",word:"DISPUTE DE COUPLE EN SILENCE",timer:60},
+{m:'mime',l:3,t:"",word:"KARAOKÉ RATÉ",timer:45},
+{m:'mime',l:3,t:"",word:"SE FAIRE LARGUER PAR SMS",timer:60},
+
+/* ============ C'EST UN 10 MAIS… (12 manches) ============ */
+{m:'dix',id:'d01',l:1},{m:'dix',id:'d02',l:1},{m:'dix',id:'d03',l:1},{m:'dix',id:'d04',l:1},
+{m:'dix',id:'d05',l:2},{m:'dix',id:'d06',l:2},{m:'dix',id:'d07',l:2},{m:'dix',id:'d08',l:2},
+{m:'dix',id:'d09',l:3},{m:'dix',id:'d10',l:3},{m:'dix',id:'d11',l:3},{m:'dix',id:'d12',l:3},
+
+/* ============ 2 VÉRITÉS 1 MENSONGE (8) ============ */
+{m:'menteur',l:1,t:"{p}, raconte 3 anecdotes sur ton enfance : 2 vraies, 1 fausse. Le groupe vote pour démasquer le mensonge.<span class='sx'>Le groupe trouve : {s} pour toi. Il se trompe : {s} pour les votants.</span>"},
+{m:'menteur',l:1,t:"{p}, raconte 3 anecdotes sur tes vacances : 2 vraies, 1 fausse. Le groupe vote pour démasquer le mensonge.<span class='sx'>Le groupe trouve : {s} pour toi. Il se trompe : {s} pour les votants.</span>"},
+{m:'menteur',l:1,t:"{p}, raconte 3 exploits (sport, jeux, n'importe quoi) : 2 vrais, 1 faux. Le groupe vote.<span class='sx'>Le groupe trouve : {s} pour toi. Il se trompe : {s} pour les votants.</span>"},
+{m:'menteur',l:2,t:"{p}, raconte 3 galères de travail ou d'études : 2 vraies, 1 fausse. Le groupe vote.<span class='sx'>Le groupe trouve : {s} pour toi. Il se trompe : {s} pour les votants.</span>"},
+{m:'menteur',l:2,t:"{p}, raconte 3 moments de honte : 2 vrais, 1 faux. Le groupe vote.<span class='sx'>Le groupe trouve : {s} pour toi. Il se trompe : {s} pour les votants.</span>"},
+{m:'menteur',l:2,t:"{p}, raconte 3 rencontres improbables : 2 vraies, 1 fausse. Le groupe vote.<span class='sx'>Le groupe trouve : {s} pour toi. Il se trompe : {s} pour les votants.</span>"},
+{m:'menteur',l:3,t:"{p}, raconte 3 histoires de soirées folles : 2 vraies, 1 fausse. Le groupe vote.<span class='sx'>Le groupe trouve : {s} pour toi. Il se trompe : {s} pour les votants.</span>"},
+{m:'menteur',l:3,t:"{p}, raconte 3 trucs que le groupe ignore sur toi : 2 vrais, 1 faux. Le groupe vote.<span class='sx'>Le groupe trouve : {s} pour toi. Il se trompe : {s} pour les votants.</span>"},
+
+/* ============ DÉBAT ABSURDE (12) ============ */
+{m:'debat',l:1,t:"DÉBAT : {p} défend « l'ananas sur la pizza est un chef-d'œuvre », {p2} défend « c'est un crime ». 30 sec chacun, vote du groupe. Le perdant : {s}."},
+{m:'debat',l:1,t:"DÉBAT : {p} défend « la douche du matin », {p2} défend « la douche du soir ». 30 sec chacun, vote du groupe. Le perdant : {s}."},
+{m:'debat',l:1,t:"DÉBAT : {p} défend « l'été écrase l'hiver », {p2} défend « l'hiver écrase l'été ». 30 sec chacun, vote du groupe. Le perdant : {s}."},
+{m:'debat',l:1,t:"DÉBAT : {p} défend « pain au chocolat », {p2} défend « chocolatine ». 30 sec chacun, vote du groupe. Le perdant : {s}."},
+{m:'debat',l:1,t:"DÉBAT : {p} défend « les chats », {p2} défend « les chiens ». 30 sec chacun, vote du groupe. Le perdant : {s}."},
+{m:'debat',l:2,t:"DÉBAT : {p} défend « arriver en retard, c'est un style de vie », {p2} défend « c'est un manque de respect ». Vote du groupe. Le perdant : {s}."},
+{m:'debat',l:2,t:"DÉBAT : {p} défend « les vocaux de 5 minutes sont un génie de communication », {p2} défend « c'est un crime ». Vote du groupe. Le perdant : {s}."},
+{m:'debat',l:2,t:"DÉBAT : {p} défend « la raclette est sacrée », {p2} défend « la raclette est surcotée ». Vote du groupe. Le perdant : {s}."},
+{m:'debat',l:2,t:"DÉBAT : {p} défend « mieux vaut être trop honnête », {p2} défend « mieux vaut être trop gentil ». Vote du groupe. Le perdant : {s}."},
+{m:'debat',l:3,t:"DÉBAT : {p} défend « les ex peuvent rester amis », {p2} défend « jamais de la vie ». Vote du groupe. Le perdant : {s}."},
+{m:'debat',l:3,t:"DÉBAT : {p} défend « le ghosting est parfois acceptable », {p2} défend « le ghosting, jamais ». Vote du groupe. Le perdant : {s}."},
+{m:'debat',l:3,t:"DÉBAT : {p} défend « le coup de foudre existe », {p2} défend « c'est du marketing ». Vote du groupe. Le perdant : {s}."},
+
+/* ============ LA BOMBE (16) ============ */
+{m:'bombe',l:1,cat:"des marques de voitures"},
+{m:'bombe',l:1,cat:"des films d'animation"},
+{m:'bombe',l:1,cat:"des choses qu'on trouve dans une cuisine"},
+{m:'bombe',l:1,cat:"des prénoms commençant par A"},
+{m:'bombe',l:1,cat:"des pays d'Afrique"},
+{m:'bombe',l:1,cat:"des animaux marins"},
+{m:'bombe',l:1,cat:"des fruits exotiques"},
+{m:'bombe',l:1,cat:"des choses rouges"},
+{m:'bombe',l:2,cat:"des chanteurs ou chanteuses français(es)"},
+{m:'bombe',l:2,cat:"des séries en cours ou terminées"},
+{m:'bombe',l:2,cat:"des sports olympiques"},
+{m:'bombe',l:2,cat:"des capitales du monde"},
+{m:'bombe',l:2,cat:"des métiers avec un uniforme"},
+{m:'bombe',l:2,cat:"des jeux vidéo"},
+{m:'bombe',l:3,cat:"des excuses pour annuler un date"},
+{m:'bombe',l:3,cat:"des pires endroits pour un premier rencard"},
+
+/* ============ CHIFOUMI (8) ============ */
+{m:'chifoumi',l:1,t:"{p} vs {p2} : chifoumi au meilleur des 5. Le perdant : {s}."},
+{m:'chifoumi',l:1,t:"TOURNOI : {p} affronte son voisin de gauche, le gagnant continue autour du cercle. Le tout premier éliminé : {s}."},
+{m:'chifoumi',l:1,t:"{p} vs {p2} : chifoumi de la main gauche uniquement. Se tromper de main = défaite immédiate. Le perdant : {s}."},
+{m:'chifoumi',l:2,t:"{p} vs {p2} : chifoumi les yeux dans les yeux, interdit de regarder les mains. Le perdant : {s}."},
+{m:'chifoumi',l:2,t:"GÉNÉRAL : tout le monde joue contre {p} en même temps. Ceux qui perdent : {s}."},
+{m:'chifoumi',l:2,t:"{p} vs {p2} : chifoumi vitesse — 5 manches en 15 secondes max. Le perdant (ou le plus lent) : {s}."},
+{m:'chifoumi',l:3,t:"{p} vs {p2} : chifoumi gage — à chaque manche perdue, le groupe invente un mini-gage immédiat. Premier à 3 défaites : {s} en bonus."},
+{m:'chifoumi',l:3,t:"ROYAL : tous en même temps au signal ! Ceux qui ont fait le geste minoritaire : {s}."},
+
+/* ============ UNDERCOVER (14 paires) ============ */
+{m:'undercover',l:1,pair:["CHAT","CHIEN"]},
+{m:'undercover',l:1,pair:["CAFÉ","THÉ"]},
+{m:'undercover',l:1,pair:["PLAGE","PISCINE"]},
+{m:'undercover',l:1,pair:["PIZZA","BURGER"]},
+{m:'undercover',l:1,pair:["AVION","TRAIN"]},
+{m:'undercover',l:1,pair:["NOËL","NOUVEL AN"]},
+{m:'undercover',l:2,pair:["CINÉMA","THÉÂTRE"]},
+{m:'undercover',l:2,pair:["FOOTING","MUSCULATION"]},
+{m:'undercover',l:2,pair:["CROISSANT","PAIN AU CHOCOLAT"]},
+{m:'undercover',l:2,pair:["MER","MONTAGNE"]},
+{m:'undercover',l:2,pair:["MARIAGE","ANNIVERSAIRE"]},
+{m:'undercover',l:3,pair:["PREMIER RENCARD","ENTRETIEN D'EMBAUCHE"]},
+{m:'undercover',l:3,pair:["EX","MEILLEUR(E) AMI(E)"]},
+{m:'undercover',l:3,pair:["SOIRÉE RÉUSSIE","SOIRÉE CATASTROPHE"]},
+
+/* ============ ENTRE DEUX (18) ============ */
+{m:'entre2',l:1,t:"Entre {p} et {p2} : qui survivrait le plus longtemps sur une île déserte ?<span class='sx'>À 3, tout le monde pointe ! Le plus pointé : {s}.</span>"},
+{m:'entre2',l:1,t:"Entre {p} et {p2} : qui craquerait en premier dans un escape game ?<span class='sx'>À 3, tout le monde pointe ! Le plus pointé : {s}.</span>"},
+{m:'entre2',l:1,t:"Entre {p} et {p2} : qui ferait le meilleur prof ?<span class='sx'>À 3, tout le monde pointe ! Le moins pointé : {s}.</span>"},
+{m:'entre2',l:1,t:"Entre {p} et {p2} : qui gagnerait à un quiz de culture générale ?<span class='sx'>À 3, tout le monde pointe ! Le moins pointé : {s}.</span>"},
+{m:'entre2',l:1,t:"Entre {p} et {p2} : qui est le plus accro à son téléphone ?<span class='sx'>À 3, tout le monde pointe ! Le plus pointé : {s}.</span>"},
+{m:'entre2',l:1,t:"Entre {p} et {p2} : qui pleurerait devant un film triste ?<span class='sx'>À 3, tout le monde pointe ! Le plus pointé : {s}.</span>"},
+{m:'entre2',l:2,t:"Entre {p} et {p2} : qui a le pire historique de recherche ?<span class='sx'>À 3, tout le monde pointe ! Le plus pointé : {s}.</span>"},
+{m:'entre2',l:2,t:"Entre {p} et {p2} : qui mentirait le mieux face à un détecteur de mensonges ?<span class='sx'>À 3, tout le monde pointe ! Le plus pointé : {s}.</span>"},
+{m:'entre2',l:2,t:"Entre {p} et {p2} : qui stalke le plus sur les réseaux ?<span class='sx'>À 3, tout le monde pointe ! Le plus pointé : {s}.</span>"},
+{m:'entre2',l:2,t:"Entre {p} et {p2} : qui drague le plus mal ?<span class='sx'>À 3, tout le monde pointe ! Le plus pointé : {s}.</span>"},
+{m:'entre2',l:2,t:"Entre {p} et {p2} : qui raconte le plus sa vie à tout le monde ?<span class='sx'>À 3, tout le monde pointe ! Le plus pointé : {s}.</span>"},
+{m:'entre2',l:2,t:"Entre {p} et {p2} : qui est le plus radin ?<span class='sx'>À 3, tout le monde pointe ! Le plus pointé : {s}.</span>"},
+{m:'entre2',l:3,t:"Entre {p} et {p2} : qui a la vie amoureuse la plus mouvementée ?<span class='sx'>À 3, tout le monde pointe ! Le plus pointé : {s}.</span>"},
+{m:'entre2',l:3,t:"Entre {p} et {p2} : qui pense le plus au sexe ?<span class='sx'>À 3, tout le monde pointe ! Le plus pointé : {s}.</span>"},
+{m:'entre2',l:3,t:"Entre {p} et {p2} : qui passe le plus de temps sur des sites pour adultes ?<span class='sx'>À 3, tout le monde pointe ! Le plus pointé : {s}.</span>"},
+{m:'entre2',l:3,t:"Entre {p} et {p2} : qui a le plus de secrets inavouables ?<span class='sx'>À 3, tout le monde pointe ! Le plus pointé : {s}.</span>"},
+{m:'entre2',l:3,t:"Entre {p} et {p2} : qui enverrait un message à son ex ce soir ?<span class='sx'>À 3, tout le monde pointe ! Le plus pointé : {s}.</span>"},
+{m:'entre2',l:3,t:"Entre {p} et {p2} : qui finirait sa soirée chez un(e) inconnu(e) ?<span class='sx'>À 3, tout le monde pointe ! Le plus pointé : {s}.</span>"},
+
+/* ============ MISSION SECRÈTE (10) ============ */
+{m:'killer',l:1,mis:"Fais dire « chaussette » à quelqu'un sans jamais poser de question directe."},
+{m:'killer',l:1,mis:"Trinque (ou tape dans la main) 3 fois avec la même personne sans qu'elle s'en rende compte."},
+{m:'killer',l:1,mis:"Place « comme dirait ma grand-mère » dans une conversation sans que personne ne tique."},
+{m:'killer',l:1,mis:"Fais lever quelqu'un de sa place par n'importe quel moyen."},
+{m:'killer',l:2,mis:"Obtiens un compliment de quelqu'un sans le demander."},
+{m:'killer',l:2,mis:"Fais répéter deux fois la même question à quelqu'un."},
+{m:'killer',l:2,mis:"Place le mot « flamant rose » naturellement dans une phrase."},
+{m:'killer',l:2,mis:"Fais rire quelqu'un uniquement en le fixant."},
+{m:'killer',l:3,mis:"Convaincs quelqu'un de te prêter son téléphone 10 secondes."},
+{m:'killer',l:3,mis:"Fais avouer à quelqu'un un truc gênant sans qu'il remarque ta manœuvre."},
+
+/* ============ PETIT BAC (12) ============ */
+{m:'petitbac',l:1,cat2:"des prénoms"},
+{m:'petitbac',l:1,cat2:"des villes"},
+{m:'petitbac',l:1,cat2:"des animaux"},
+{m:'petitbac',l:1,cat2:"des métiers"},
+{m:'petitbac',l:1,cat2:"des plats ou desserts"},
+{m:'petitbac',l:1,cat2:"des marques"},
+{m:'petitbac',l:2,cat2:"des célébrités"},
+{m:'petitbac',l:2,cat2:"des objets du quotidien"},
+{m:'petitbac',l:2,cat2:"des films ou séries"},
+{m:'petitbac',l:2,cat2:"des choses qu'on trouve à la plage"},
+{m:'petitbac',l:2,cat2:"des sports"},
+{m:'petitbac',l:2,cat2:"des fruits ou légumes"},
+
+/* ============ BLIND TEST (14) ============ */
+{m:'blindtest',l:1,song:"Les Champs-Élysées — Joe Dassin",timer:45},
+{m:'blindtest',l:1,song:"We Will Rock You — Queen",timer:45},
+{m:'blindtest',l:1,song:"Macarena — Los del Río",timer:45},
+{m:'blindtest',l:1,song:"L'Aventurier — Indochine",timer:45},
+{m:'blindtest',l:1,song:"Take On Me — a-ha",timer:45},
+{m:'blindtest',l:1,song:"Freed from Desire — Gala",timer:45},
+{m:'blindtest',l:2,song:"Les Lacs du Connemara — Michel Sardou",timer:45},
+{m:'blindtest',l:2,song:"Alexandrie Alexandra — Claude François",timer:45},
+{m:'blindtest',l:2,song:"Allumer le feu — Johnny Hallyday",timer:45},
+{m:'blindtest',l:2,song:"Dernière danse — Indila",timer:45},
+{m:'blindtest',l:2,song:"Djadja — Aya Nakamura",timer:45},
+{m:'blindtest',l:2,song:"Seven Nation Army — The White Stripes",timer:45},
+{m:'blindtest',l:3,song:"La Bohème — Charles Aznavour",timer:60},
+{m:'blindtest',l:3,song:"Believer — Imagine Dragons",timer:60},
+
+/* ============ QUI A DIT ÇA ? (10) ============ */
+{m:'quidit',l:1,q:"Ton plat réconfort ultime ?"},
+{m:'quidit',l:1,q:"Le talent que tu rêverais d'avoir ?"},
+{m:'quidit',l:1,q:"Ta série de la honte ?"},
+{m:'quidit',l:1,q:"Ton pire trait de caractère, en un mot ?"},
+{m:'quidit',l:2,q:"La chose la plus bête que tu aies faite pour de l'argent ?"},
+{m:'quidit',l:2,q:"Ton excuse bidon préférée pour annuler un plan ?"},
+{m:'quidit',l:2,q:"Le truc le plus étrange dans ton historique de recherche ?"},
+{m:'quidit',l:3,q:"Ton crush de jeunesse le plus gênant ?"},
+{m:'quidit',l:3,q:"Un truc que tu n'as jamais avoué au groupe ?"},
+{m:'quidit',l:3,q:"Ta pensée la plus inavouable en soirée (reste publiable) ?"},
+
+/* ============ LE FAIT FOU (16 — anecdotes véridiques) ============ */
+{m:'anecdote',l:1,q:"En 1518 à Strasbourg, des dizaines d'habitants sont morts d'épuisement après avoir ___ sans pouvoir s'arrêter pendant des jours.",opts:["dansé","chanté","couru","applaudi"],a:"dansé"},
+{m:'anecdote',l:1,q:"En 1932, l'armée australienne a officiellement déclaré la guerre aux ___… et a perdu.",opts:["émeus","kangourous","lapins","crocodiles"],a:"émeus"},
+{m:'anecdote',l:1,q:"La tour Eiffel mesure jusqu'à 15 cm de plus en été à cause de ___.",opts:["la chaleur","du vent","des touristes","de la peinture"],a:"la chaleur"},
+{m:'anecdote',l:1,q:"Le ___ est réputé être le seul aliment qui ne périme jamais.",opts:["miel","chocolat","riz","café"],a:"miel"},
+{m:'anecdote',l:1,q:"Les loutres de mer dorment en se tenant ___ pour ne pas dériver loin les unes des autres.",opts:["la main","la queue","les oreilles","le ventre"],a:"la main"},
+{m:'anecdote',l:1,q:"Les flamants roses naissent ___.",opts:["gris","roses","bleus","noirs"],a:"gris"},
+{m:'anecdote',l:2,q:"En 1919 à Boston, 21 personnes sont mortes noyées dans une vague géante de ___.",opts:["mélasse","bière","lait","huile d'olive"],a:"mélasse"},
+{m:'anecdote',l:2,q:"Napoléon a un jour dû battre en retraite face à une attaque de ___.",opts:["lapins","abeilles","oies","sangliers"],a:"lapins"},
+{m:'anecdote',l:2,q:"En 2009 en Afrique du Sud, un ___ a transféré des données plus vite que la connexion internet du pays.",opts:["pigeon voyageur","vélo","cheval","taxi"],a:"pigeon voyageur"},
+{m:'anecdote',l:2,q:"Cléopâtre a vécu plus proche dans le temps de ___ que de la construction des grandes pyramides.",opts:["l'iPhone","Jules César","Charlemagne","la Tour Eiffel"],a:"l'iPhone"},
+{m:'anecdote',l:2,q:"Les requins existaient déjà sur Terre avant ___.",opts:["les arbres","les poissons","les méduses","les volcans"],a:"les arbres"},
+{m:'anecdote',l:2,q:"Le roi de France Charles VIII est mort en 1498 après avoir violemment heurté ___.",opts:["un linteau de porte","un cheval","une armure","un tonneau"],a:"un linteau de porte"},
+{m:'anecdote',l:3,q:"L'Américain Charles Osborne a eu le hoquet sans interruption pendant ___.",opts:["68 ans","6 mois","3 semaines","12 ans"],a:"68 ans"},
+{m:'anecdote',l:3,q:"Au Moyen Âge, il arrivait qu'on fasse un vrai procès, avec avocat, à ___.",opts:["un cochon","une rivière","un fantôme","une cloche"],a:"un cochon"},
+{m:'anecdote',l:3,q:"Au Honduras, un phénomène météo fait régulièrement « pleuvoir » des ___.",opts:["poissons","grenouilles","serpents","crabes"],a:"poissons"},
+{m:'anecdote',l:3,q:"En 1958, la Chine a lancé une campagne nationale d'extermination des ___, provoquant une catastrophe écologique.",opts:["moineaux","rats","sauterelles","serpents"],a:"moineaux"},
+
+/* ============ VRAI OU FAUX (12) ============ */
+{m:'vraifaux',l:1,q:"Les bananes sont légèrement radioactives.",v:true},
+{m:'vraifaux',l:1,q:"La Grande Muraille de Chine est visible à l'œil nu depuis la Lune.",v:false},
+{m:'vraifaux',l:1,q:"Les autruches se cachent la tête dans le sable quand elles ont peur.",v:false},
+{m:'vraifaux',l:1,q:"Le cœur d'une crevette est situé dans sa tête.",v:true},
+{m:'vraifaux',l:2,q:"On avale en moyenne 8 araignées par an en dormant.",v:false},
+{m:'vraifaux',l:2,q:"Les poissons rouges ont une mémoire de 3 secondes.",v:false},
+{m:'vraifaux',l:2,q:"L'animal national officiel de l'Écosse est la licorne.",v:true},
+{m:'vraifaux',l:2,q:"Il y aurait plus d'étoiles dans l'univers observable que de grains de sable sur Terre.",v:true},
+{m:'vraifaux',l:3,q:"Le foie humain peut se régénérer presque entièrement.",v:true},
+{m:'vraifaux',l:3,q:"Les empreintes de langue sont uniques, comme les empreintes digitales.",v:true},
+{m:'vraifaux',l:3,q:"Un éclair est plus chaud que la surface du Soleil.",v:true},
+{m:'vraifaux',l:3,q:"Les chauves-souris sont aveugles.",v:false},
+{m:'vraifaux',l:2,q:"Un jour sur Vénus dure plus longtemps qu'une année sur Vénus.",v:true},
+{m:'vraifaux',l:2,q:"Au 19e siècle, le ketchup a été vendu comme médicament.",v:true},
+{m:'vraifaux',l:2,q:"Les escargots ont des milliers de dents.",v:true},
+{m:'vraifaux',l:2,q:"Les fourmis dorment environ 8 heures par nuit, comme nous.",v:false},
+{m:'vraifaux',l:2,q:"Un poulpe a trois cœurs.",v:true},
+{m:'vraifaux',l:2,q:"La Joconde a des sourcils bien visibles.",v:false},
+{m:'vraifaux',l:2,q:"Certains serpents peuvent planer d'arbre en arbre.",v:true},
+{m:'vraifaux',l:3,q:"Le Vatican a le taux de criminalité par habitant le plus élevé du monde.",v:true},
+{m:'vraifaux',l:3,q:"L'Empire State Building a son propre code postal.",v:true},
+{m:'vraifaux',l:3,q:"Les vaches ont des meilleures amies et stressent quand on les sépare.",v:true},
+{m:'vraifaux',l:3,q:"Un ananas met environ deux ans à pousser.",v:true},
+{m:'vraifaux',l:3,q:"Les humains partagent environ la moitié de leur ADN avec les bananes.",v:true},
+{m:'vraifaux',l:3,q:"Le sable de certaines plages de Normandie contient encore des particules métalliques du Débarquement.",v:true},
+{m:'vraifaux',l:3,q:"Le muscle le plus puissant du corps par rapport à sa taille est situé dans la mâchoire.",v:true},
+
+/* ============ CAPITALES (18) ============ */
+{m:'capitales',l:1,q:"Quelle est la capitale de l'Espagne ?",opts:["Madrid","Barcelone","Séville","Valence"],a:"Madrid"},
+{m:'capitales',l:1,q:"Quelle est la capitale du Portugal ?",opts:["Lisbonne","Porto","Faro","Madère"],a:"Lisbonne"},
+{m:'capitales',l:1,q:"Quelle est la capitale du Japon ?",opts:["Tokyo","Osaka","Kyoto","Nagoya"],a:"Tokyo"},
+{m:'capitales',l:1,q:"Quelle est la capitale de la Grèce ?",opts:["Athènes","Thessalonique","Sparte","Corinthe"],a:"Athènes"},
+{m:'capitales',l:1,q:"Quelle est la capitale de l'Égypte ?",opts:["Le Caire","Alexandrie","Louxor","Gizeh"],a:"Le Caire"},
+{m:'capitales',l:1,q:"Quelle est la capitale de la Russie ?",opts:["Moscou","Saint-Pétersbourg","Kazan","Sotchi"],a:"Moscou"},
+{m:'capitales',l:2,q:"Quelle est la capitale de l'Australie ?",opts:["Canberra","Sydney","Melbourne","Perth"],a:"Canberra"},
+{m:'capitales',l:2,q:"Quelle est la capitale du Canada ?",opts:["Ottawa","Toronto","Montréal","Vancouver"],a:"Ottawa"},
+{m:'capitales',l:2,q:"Quelle est la capitale de la Turquie ?",opts:["Ankara","Istanbul","Izmir","Antalya"],a:"Ankara"},
+{m:'capitales',l:2,q:"Quelle est la capitale du Brésil ?",opts:["Brasília","Rio de Janeiro","São Paulo","Salvador"],a:"Brasília"},
+{m:'capitales',l:2,q:"Quelle est la capitale de la Suisse ?",opts:["Berne","Zurich","Genève","Lausanne"],a:"Berne"},
+{m:'capitales',l:2,q:"Quelle est la capitale du Maroc ?",opts:["Rabat","Casablanca","Marrakech","Fès"],a:"Rabat"},
+{m:'capitales',l:3,q:"Quelle est la capitale de la Nouvelle-Zélande ?",opts:["Wellington","Auckland","Christchurch","Queenstown"],a:"Wellington"},
+{m:'capitales',l:3,q:"Quelle est la capitale du Kazakhstan ?",opts:["Astana","Almaty","Tachkent","Bichkek"],a:"Astana"},
+{m:'capitales',l:3,q:"Quelle est la capitale du Nigeria ?",opts:["Abuja","Lagos","Kano","Ibadan"],a:"Abuja"},
+{m:'capitales',l:3,q:"Quelle est la capitale de la Birmanie (Myanmar) ?",opts:["Naypyidaw","Rangoun","Mandalay","Bagan"],a:"Naypyidaw"},
+{m:'capitales',l:3,q:"Quelle est la capitale officielle de la Côte d'Ivoire ?",opts:["Yamoussoukro","Abidjan","Bouaké","San-Pédro"],a:"Yamoussoukro"},
+{m:'capitales',l:3,q:"Quelle est la capitale officielle de la Tanzanie ?",opts:["Dodoma","Dar es Salaam","Zanzibar","Arusha"],a:"Dodoma"},
+
+/* ============ CULTURE G (16) ============ */
+{m:'quizg',l:1,q:"Combien de côtés a un hexagone ?",opts:["6","5","7","8"],a:"6"},
+{m:'quizg',l:1,q:"Quel est le plus grand océan du monde ?",opts:["Pacifique","Atlantique","Indien","Arctique"],a:"Pacifique"},
+{m:'quizg',l:1,q:"Qui a peint La Joconde ?",opts:["Léonard de Vinci","Michel-Ange","Raphaël","Botticelli"],a:"Léonard de Vinci"},
+{m:'quizg',l:1,q:"Combien de joueurs par équipe sur un terrain de foot ?",opts:["11","10","12","9"],a:"11"},
+{m:'quizg',l:1,q:"Quelle planète est surnommée « la planète rouge » ?",opts:["Mars","Vénus","Jupiter","Mercure"],a:"Mars"},
+{m:'quizg',l:2,q:"Quel est l'os le plus long du corps humain ?",opts:["Le fémur","Le tibia","L'humérus","La colonne vertébrale"],a:"Le fémur"},
+{m:'quizg',l:2,q:"En quelle année a éclaté la Première Guerre mondiale ?",opts:["1914","1918","1912","1916"],a:"1914"},
+{m:'quizg',l:2,q:"Quel est le plus long fleuve de France ?",opts:["La Loire","La Seine","Le Rhône","La Garonne"],a:"La Loire"},
+{m:'quizg',l:2,q:"Quel élément chimique a pour symbole Au ?",opts:["L'or","L'argent","L'aluminium","Le cuivre"],a:"L'or"},
+{m:'quizg',l:2,q:"Quel pays a offert la statue de la Liberté aux États-Unis ?",opts:["La France","L'Angleterre","L'Italie","L'Espagne"],a:"La France"},
+{m:'quizg',l:2,q:"Combien de cordes a une guitare classique ?",opts:["6","4","7","5"],a:"6"},
+{m:'quizg',l:3,q:"Quel est le plus petit pays du monde ?",opts:["Le Vatican","Monaco","Saint-Marin","Le Liechtenstein"],a:"Le Vatican"},
+{m:'quizg',l:3,q:"Combien y a-t-il de zéros dans un milliard ?",opts:["9","6","12","10"],a:"9"},
+{m:'quizg',l:3,q:"Quelle langue compte le plus de locuteurs natifs au monde ?",opts:["Le mandarin","L'anglais","L'espagnol","L'hindi"],a:"Le mandarin"},
+{m:'quizg',l:3,q:"Qui a écrit « L'Étranger » ?",opts:["Albert Camus","Jean-Paul Sartre","Victor Hugo","Marcel Proust"],a:"Albert Camus"},
+{m:'quizg',l:3,q:"Quel est l'animal terrestre le plus rapide ?",opts:["Le guépard","Le lion","L'antilope","L'autruche"],a:"Le guépard"},
+
+/* ============ LE JUSTE PRIX (12) ============ */
+{m:'prix',l:1,q:"une baguette tradition à la boulangerie (prix moyen en France) ?",a:"≈ 1,50 €"},
+{m:'prix',l:1,q:"un timbre lettre verte (tarif 2025) ?",a:"1,39 €"},
+{m:'prix',l:1,q:"une place de cinéma (prix moyen en France) ?",a:"≈ 7,50 €"},
+{m:'prix',l:1,q:"un Big Mac en France ?",a:"≈ 5,60 €"},
+{m:'prix',l:2,q:"une PS5 Slim neuve, édition standard ?",a:"≈ 550 €"},
+{m:'prix',l:2,q:"un kebab moyen en France ?",a:"≈ 9 €"},
+{m:'prix',l:2,q:"le SMIC net mensuel (2025) ?",a:"≈ 1 430 €"},
+{m:'prix',l:2,q:"une Rolex Submariner neuve ?",a:"≈ 9 500 €"},
+{m:'prix',l:3,q:"le tableau le plus cher jamais vendu aux enchères (Salvator Mundi, 2017) ?",a:"450 millions $"},
+{m:'prix',l:3,q:"la voiture la plus chère jamais vendue (Mercedes 300 SLR, 2022) ?",a:"135 millions €"},
+{m:'prix',l:3,q:"la bouteille de vin la plus chère jamais vendue aux enchères (Romanée-Conti 1945) ?",a:"558 000 $"},
+{m:'prix',l:3,q:"le maillot de foot le plus cher jamais vendu (Maradona, « main de Dieu ») ?",a:"≈ 8,4 millions €"},
+
+/* ============ DRAPEAUX (16) ============ */
+{m:'drapeaux',l:1,q:"Quel pays a ce drapeau ?<span style='font-size:56px;display:block;margin:8px 0'>🇪🇸</span>",opts:["Espagne","Portugal","Italie","Mexique"],a:"Espagne"},
+{m:'drapeaux',l:1,q:"Quel pays a ce drapeau ?<span style='font-size:56px;display:block;margin:8px 0'>🇩🇪</span>",opts:["Allemagne","Belgique","Autriche","Pays-Bas"],a:"Allemagne"},
+{m:'drapeaux',l:1,q:"Quel pays a ce drapeau ?<span style='font-size:56px;display:block;margin:8px 0'>🇯🇵</span>",opts:["Japon","Corée du Sud","Chine","Vietnam"],a:"Japon"},
+{m:'drapeaux',l:1,q:"Quel pays a ce drapeau ?<span style='font-size:56px;display:block;margin:8px 0'>🇧🇷</span>",opts:["Brésil","Argentine","Portugal","Colombie"],a:"Brésil"},
+{m:'drapeaux',l:1,q:"Quel pays a ce drapeau ?<span style='font-size:56px;display:block;margin:8px 0'>🇨🇦</span>",opts:["Canada","États-Unis","Suisse","Danemark"],a:"Canada"},
+{m:'drapeaux',l:1,q:"Quel pays a ce drapeau ?<span style='font-size:56px;display:block;margin:8px 0'>🇬🇷</span>",opts:["Grèce","Finlande","Israël","Uruguay"],a:"Grèce"},
+{m:'drapeaux',l:2,q:"Quel pays a ce drapeau ?<span style='font-size:56px;display:block;margin:8px 0'>🇵🇹</span>",opts:["Portugal","Espagne","Maroc","Angola"],a:"Portugal"},
+{m:'drapeaux',l:2,q:"Quel pays a ce drapeau ?<span style='font-size:56px;display:block;margin:8px 0'>🇳🇱</span>",opts:["Pays-Bas","Luxembourg","France","Russie"],a:"Pays-Bas"},
+{m:'drapeaux',l:2,q:"Quel pays a ce drapeau ?<span style='font-size:56px;display:block;margin:8px 0'>🇦🇷</span>",opts:["Argentine","Uruguay","Grèce","Honduras"],a:"Argentine"},
+{m:'drapeaux',l:2,q:"Quel pays a ce drapeau ?<span style='font-size:56px;display:block;margin:8px 0'>🇨🇭</span>",opts:["Suisse","Danemark","Autriche","Croix-Rouge"],a:"Suisse"},
+{m:'drapeaux',l:2,q:"Quel pays a ce drapeau ?<span style='font-size:56px;display:block;margin:8px 0'>🇹🇷</span>",opts:["Turquie","Tunisie","Algérie","Pakistan"],a:"Turquie"},
+{m:'drapeaux',l:2,q:"Quel pays a ce drapeau ?<span style='font-size:56px;display:block;margin:8px 0'>🇸🇪</span>",opts:["Suède","Norvège","Danemark","Finlande"],a:"Suède"},
+{m:'drapeaux',l:3,q:"Quel pays a ce drapeau ?<span style='font-size:56px;display:block;margin:8px 0'>🇸🇮</span>",opts:["Slovénie","Slovaquie","Croatie","Russie"],a:"Slovénie"},
+{m:'drapeaux',l:3,q:"Quel pays a ce drapeau ?<span style='font-size:56px;display:block;margin:8px 0'>🇵🇱</span>",opts:["Pologne","Indonésie","Monaco","Autriche"],a:"Pologne"},
+{m:'drapeaux',l:3,q:"Quel pays a ce drapeau ?<span style='font-size:56px;display:block;margin:8px 0'>🇺🇾</span>",opts:["Uruguay","Argentine","Grèce","Paraguay"],a:"Uruguay"},
+{m:'drapeaux',l:3,q:"Quel pays a ce drapeau ?<span style='font-size:56px;display:block;margin:8px 0'>🇿🇦</span>",opts:["Afrique du Sud","Kenya","Sénégal","Jamaïque"],a:"Afrique du Sud"},
+
+/* ============ PLUS OU MOINS (14) ============ */
+{m:'plusmoins',l:1,q:"La tour Eiffel est-elle PLUS ou MOINS haute que la grande pyramide de Khéops ?",a:"PLUS"},
+{m:'plusmoins',l:1,q:"La France compte-t-elle PLUS ou MOINS d'habitants que le Japon ?",a:"MOINS"},
+{m:'plusmoins',l:1,q:"Un éléphant d'Afrique pèse-t-il PLUS ou MOINS qu'une voiture citadine ?",a:"PLUS"},
+{m:'plusmoins',l:1,q:"Y a-t-il PLUS ou MOINS de pays en Europe qu'en Afrique ?",a:"MOINS"},
+{m:'plusmoins',l:1,q:"Le corps humain adulte compte-t-il PLUS ou MOINS de 200 os ?",a:"PLUS"},
+{m:'plusmoins',l:2,q:"Le cerveau consomme-t-il PLUS ou MOINS de 15 % de notre énergie ?",a:"PLUS"},
+{m:'plusmoins',l:2,q:"Y a-t-il PLUS ou MOINS de poules que d'humains sur Terre ?",a:"PLUS"},
+{m:'plusmoins',l:2,q:"Le mont Blanc culmine-t-il à PLUS ou MOINS de 5 000 m ?",a:"MOINS"},
+{m:'plusmoins',l:2,q:"La Grande Barrière de corail est-elle PLUS ou MOINS longue que la France du nord au sud ?",a:"PLUS"},
+{m:'plusmoins',l:2,q:"Une fourmi peut-elle porter PLUS ou MOINS de 10 fois son poids ?",a:"PLUS"},
+{m:'plusmoins',l:3,q:"La Lune est-elle PLUS ou MOINS grande que la planète Mercure ?",a:"MOINS"},
+{m:'plusmoins',l:3,q:"Le Soleil pourrait-il contenir PLUS ou MOINS d'un million de Terres ?",a:"PLUS"},
+{m:'plusmoins',l:3,q:"Un Boeing 747 pèse-t-il PLUS ou MOINS de 300 tonnes au décollage ?",a:"PLUS"},
+{m:'plusmoins',l:3,q:"Le Vatican compte-t-il PLUS ou MOINS de 1 000 habitants ?",a:"MOINS"},
+
+/* ============ DEVINE LA MARQUE (14) ============ */
+{m:'marques',l:1,q:"Une pomme croquée sur le côté.",opts:["Apple","Samsung","Blackberry","Android"],a:"Apple"},
+{m:'marques',l:1,q:"Un grand M jaune sur fond rouge.",opts:["McDonald's","Burger King","KFC","Quick"],a:"McDonald's"},
+{m:'marques',l:1,q:"Une virgule inversée, souvent blanche ou noire.",opts:["Nike","Adidas","Puma","Reebok"],a:"Nike"},
+{m:'marques',l:1,q:"Trois bandes parallèles inclinées.",opts:["Adidas","Nike","Fila","Le Coq Sportif"],a:"Adidas"},
+{m:'marques',l:2,q:"Une sirène verte à deux queues dans un cercle.",opts:["Starbucks","Costa Coffee","Colombus Café","Nespresso"],a:"Starbucks"},
+{m:'marques',l:2,q:"Un crocodile vert, gueule ouverte.",opts:["Lacoste","Crocs","Izod","Ralph Lauren"],a:"Lacoste"},
+{m:'marques',l:2,q:"Un losange argenté sur fond jaune.",opts:["Renault","Citroën","Peugeot","Opel"],a:"Renault"},
+{m:'marques',l:2,q:"Un lion dressé sur ses pattes arrière.",opts:["Peugeot","Renault","Jaguar","MGM"],a:"Peugeot"},
+{m:'marques',l:2,q:"Une coquille Saint-Jacques jaune et rouge.",opts:["Shell","Total","Esso","BP"],a:"Shell"},
+{m:'marques',l:3,q:"Un cheval cabré noir sur fond jaune.",opts:["Ferrari","Porsche","Lamborghini","Mustang"],a:"Ferrari"},
+{m:'marques',l:3,q:"Quatre anneaux entrelacés en ligne.",opts:["Audi","Mercedes","BMW","Volkswagen"],a:"Audi"},
+{m:'marques',l:3,q:"Une hélice stylisée bleue et blanche dans un cercle noir.",opts:["BMW","Mercedes","Audi","Bugatti"],a:"BMW"},
+{m:'marques',l:3,q:"Un bonhomme tout blanc fait de pneus empilés.",opts:["Michelin","Goodyear","Bridgestone","Pirelli"],a:"Michelin"},
+{m:'marques',l:3,q:"Un taureau doré qui charge sur fond noir.",opts:["Lamborghini","Red Bull","Ferrari","Osborne"],a:"Lamborghini"},
+
+/* ============ FAIS DEVINER LE FILM (10 manches) ============ */
+{m:'films',id:'fm01',l:1},{m:'films',id:'fm02',l:1},{m:'films',id:'fm03',l:1},{m:'films',id:'fm04',l:1},
+{m:'films',id:'fm05',l:2},{m:'films',id:'fm06',l:2},{m:'films',id:'fm07',l:2},
+{m:'films',id:'fm08',l:3},{m:'films',id:'fm09',l:3},{m:'films',id:'fm10',l:3},
+
+/* ============ TU ME CONNAIS ? (14) ============ */
+{m:'connais',l:1,t:"{p2}, tu connais bien {p} ? Quel est son plat préféré ? Réponds, puis {p} confirme.<span class='sx'>Juste : tu choisis qui subit {s}. Faux : {s} pour toi.</span>"},
+{m:'connais',l:1,t:"{p2}, tu connais bien {p} ? Quelle est sa boisson favorite ? Réponds, puis {p} confirme.<span class='sx'>Juste : tu choisis qui subit {s}. Faux : {s} pour toi.</span>"},
+{m:'connais',l:1,t:"{p2}, tu connais bien {p} ? Quelle est sa destination de rêve ? Réponds, puis {p} confirme.<span class='sx'>Juste : tu choisis qui subit {s}. Faux : {s} pour toi.</span>"},
+{m:'connais',l:1,t:"{p2}, tu connais bien {p} ? Quel est son talent caché ? Réponds, puis {p} confirme.<span class='sx'>Juste : tu choisis qui subit {s}. Faux : {s} pour toi.</span>"},
+{m:'connais',l:1,t:"{p2}, tu connais bien {p} ? Quel est son péché mignon ? Réponds, puis {p} confirme.<span class='sx'>Juste : tu choisis qui subit {s}. Faux : {s} pour toi.</span>"},
+{m:'connais',l:2,t:"{p2}, tu connais bien {p} ? Quelle est sa plus grande peur ? Réponds, puis {p} confirme.<span class='sx'>Juste : tu choisis qui subit {s}. Faux : {s} pour toi.</span>"},
+{m:'connais',l:2,t:"{p2}, tu connais bien {p} ? Quel est l'emoji qu'il/elle utilise le plus ? {p} vérifie sur son clavier !<span class='sx'>Juste : tu choisis qui subit {s}. Faux : {s} pour toi.</span>"},
+{m:'connais',l:2,t:"{p2}, tu connais bien {p} ? Qu'est-ce qui l'énerve le plus au monde ? Réponds, puis {p} confirme.<span class='sx'>Juste : tu choisis qui subit {s}. Faux : {s} pour toi.</span>"},
+{m:'connais',l:2,t:"{p2}, tu connais bien {p} ? Quelle série regarde-t-il/elle en cachette ? Réponds, puis {p} confirme.<span class='sx'>Juste : tu choisis qui subit {s}. Faux : {s} pour toi.</span>"},
+{m:'connais',l:2,t:"{p2}, tu connais bien {p} ? Que ferait-il/elle en premier avec 1 million d'euros ? Réponds, puis {p} confirme.<span class='sx'>Juste : tu choisis qui subit {s}. Faux : {s} pour toi.</span>"},
+{m:'connais',l:2,t:"{p2}, tu connais bien {p} ? Quel a été son premier concert ? Réponds, puis {p} confirme.<span class='sx'>Juste : tu choisis qui subit {s}. Faux : {s} pour toi.</span>"},
+{m:'connais',l:3,t:"{p2}, tu connais bien {p} ? Quel est son crush célébrité ? Réponds, puis {p} confirme.<span class='sx'>Juste : tu choisis qui subit {s}. Faux : {s} pour toi.</span>"},
+{m:'connais',l:3,t:"{p2}, tu connais bien {p} ? Quelle est sa pire habitude ? Réponds, puis {p} confirme (avec honnêteté !).<span class='sx'>Juste : tu choisis qui subit {s}. Faux : {s} pour toi.</span>"},
+{m:'connais',l:3,t:"{p2}, tu connais bien {p} ? Quel est son plus grand regret avouable ? Réponds, puis {p} confirme.<span class='sx'>Juste : tu choisis qui subit {s}. Faux : {s} pour toi.</span>"},
+
+/* ============ CANARI (6 variantes) ============ */
+{m:'canari',id:'cn1',l:1,extra:""},
+{m:'canari',id:'cn2',l:1,extra:"Version rapide : moins d'une seconde pour répondre !"},
+{m:'canari',id:'cn3',l:2,extra:"Interdiction de montrer les dents en parlant !"},
+{m:'canari',id:'cn4',l:2,extra:"Tout le monde parle avec un accent (au choix du groupe) !"},
+{m:'canari',id:'cn5',l:3,extra:"Tout se joue en chuchotant. Parler fort = perdu !"},
+{m:'canari',id:'cn6',l:3,extra:"Interdiction de rire pendant le tour. Un rire = perdu !"},
+
+/* ============ PARANOÏA (18) ============ */
+{m:'parano',l:1,q:"Qui est la personne la plus drôle ici ?"},
+{m:'parano',l:1,q:"Qui survivrait le mieux seul(e) en forêt ?"},
+{m:'parano',l:1,q:"Qui a le meilleur style ce soir ?"},
+{m:'parano',l:1,q:"Avec qui partirais-tu en road trip sans hésiter ?"},
+{m:'parano',l:1,q:"Qui ferait le meilleur parent ?"},
+{m:'parano',l:1,q:"Qui te remonte le moral à coup sûr ?"},
+{m:'parano',l:2,q:"Qui a le pire goût musical ici ?"},
+{m:'parano',l:2,q:"Qui est le plus mauvais perdant ?"},
+{m:'parano',l:2,q:"Qui mettrait le plus de temps à te rembourser une dette ?"},
+{m:'parano',l:2,q:"Qui est le plus susceptible (au sens : se vexe vite) ici ?"},
+{m:'parano',l:2,q:"Qui ferait le pire colocataire ?"},
+{m:'parano',l:2,q:"Qui drague le plus lourdement ?"},
+{m:'parano',l:3,q:"Qui est la personne la moins bien habillée ce soir ?"},
+{m:'parano',l:3,q:"Qui embrasserais-tu si tu étais obligé(e) de choisir ici ?"},
+{m:'parano',l:3,q:"Qui a le moins de chances de devenir riche ?"},
+{m:'parano',l:3,q:"Qui est le plus mauvais en drague ici ?"},
+{m:'parano',l:3,q:"Avec qui ne partirais-tu jamais en vacances ?"},
+{m:'parano',l:3,q:"Qui te tape le plus sur les nerfs (avec amour) ?"},
+{m:'parano',l:3,q:"Avec qui coucherais-tu ce soir, sans hésiter ?"},
+{m:'parano',l:3,q:"Avec qui ne coucherais-tu JAMAIS, même seuls au monde ?"},
+{m:'parano',l:3,q:"Qui embrasse le mieux ici, à ton avis ?"},
+{m:'parano',l:3,q:"Qui a probablement la vie sexuelle la plus déchaînée ?"},
+{m:'parano',l:3,q:"Qui aimerais-tu voir nu(e), par pure curiosité scientifique ?"},
+{m:'parano',l:3,q:"Avec qui un plan à trois serait le moins gênant ?"},
+{m:'parano',l:3,q:"Qui serait le/la pire au lit, à ton avis ?"},
+{m:'parano',l:3,q:"Qui a déjà fantasmé sur quelqu'un présent dans cette pièce ?"},
+
+/* ============ LE DÉ MAUDIT (5 manches) ============ */
+{m:'des',id:'de1',l:1},{m:'des',id:'de2',l:1},{m:'des',id:'de3',l:2},{m:'des',id:'de4',l:2},{m:'des',id:'de5',l:3},
+
+/* ============ DENSIFICATION v1.7 (+66) ============ */
+/* --- Vérité --- */
+{m:'verite',l:1,t:"{p}, quel objet gardes-tu précieusement alors qu'il ne sert à rien ?"},
+{m:'verite',l:1,t:"{p}, quelle chanson connais-tu par cœur sans jamais l'assumer ?"},
+{m:'verite',l:1,t:"{p}, ton pire achat en ligne de tous les temps ?"},
+{m:'verite',l:1,t:"{p}, quelle appli devrais-tu supprimer, honnêtement ?"},
+{m:'verite',l:2,t:"{p}, quelle est la dernière chose que tu as faite en cachette ? Réponds ou {s}."},
+{m:'verite',l:2,t:"{p}, quel compliment reçois-tu souvent sans jamais y croire ?"},
+{m:'verite',l:2,t:"{p}, quelle habitude de quelqu'un ici t'agace secrètement ? Réponds ou {s}."},
+{m:'verite',l:2,t:"{p}, ta pire excuse jamais sortie à un patron ou un prof ?"},
+{m:'verite',l:3,t:"{p}, classe 3 personnes de cette pièce de la plus à la moins drôle. À voix haute, ou {s} ×2."},
+{m:'verite',l:3,t:"{p}, quelle personne ici a le plus changé — en bien ou en mal ? Développe, ou {s}."},
+{m:'verite',l:3,t:"{p}, résume le message le plus récent que tu ne voudrais PAS qu'on lise, ou {s} ×2."},
+{m:'verite',l:3,t:"{p}, à qui ici mentirais-tu le plus facilement ? Justifie, ou {s}."},
+/* --- Action --- */
+{m:'action',l:1,t:"{p}, présente {p2} au groupe comme si c'était une star de télé-réalité."},
+{m:'action',l:1,t:"{p}, 10 secondes de air guitar, conviction TOTALE exigée."},
+{m:'action',l:1,t:"{p}, raconte ta journée comme un commentateur de foot en fin de match."},
+{m:'action',l:2,t:"{p}, échange de place avec {p2} et imite sa façon de s'asseoir jusqu'à ton prochain tour."},
+{m:'action',l:2,t:"{p}, fais deviner ton emoji le plus utilisé uniquement avec ton visage. Échec = {s}."},
+{m:'action',l:2,t:"{p}, enregistre-toi un vocal de motivation à toi-même. Le groupe écoute. Refus = {s}."},
+{m:'action',l:3,t:"{p}, donne ton téléphone déverrouillé à {p2} le temps d'une carte, ou {s} ×2."},
+{m:'action',l:3,t:"{p}, lis à voix haute ta dernière note écrite dans ton téléphone, ou {s}."},
+{m:'action',l:3,t:"{p}, laisse le groupe rédiger un message à un contact de son choix — tu valides avant envoi, ou {s} ×2."},
+/* --- Je n'ai jamais --- */
+{m:'jamais',l:1,t:"Je n'ai jamais… dit « j'arrive » alors que je n'étais même pas parti.<span class='sx'>Ceux qui l'ont fait : {s}.</span>"},
+{m:'jamais',l:1,t:"Je n'ai jamais… reporté un vêtement pas lavé par pure flemme.<span class='sx'>Ceux qui l'ont fait : {s}.</span>"},
+{m:'jamais',l:1,t:"Je n'ai jamais… fait semblant d'être au téléphone pour éviter quelqu'un.<span class='sx'>Ceux qui l'ont fait : {s}.</span>"},
+{m:'jamais',l:2,t:"Je n'ai jamais… fait semblant de ne pas voir quelqu'un dans la rue.<span class='sx'>Ceux qui l'ont fait : {s}.</span>"},
+{m:'jamais',l:2,t:"Je n'ai jamais… menti sur mon niveau dans une langue étrangère.<span class='sx'>Ceux qui l'ont fait : {s}.</span>"},
+{m:'jamais',l:2,t:"Je n'ai jamais… gardé un cadeau pour le re-offrir à quelqu'un d'autre.<span class='sx'>Ceux qui l'ont fait : {s}.</span>"},
+{m:'jamais',l:3,t:"Je n'ai jamais… lu jusqu'au bout une conversation qui ne m'était pas destinée.<span class='sx'>Ceux qui l'ont fait : {s}.</span>"},
+{m:'jamais',l:3,t:"Je n'ai jamais… dit « je t'aime » sans le penser.<span class='sx'>Ceux qui l'ont fait : {s}.</span>"},
+{m:'jamais',l:3,t:"Je n'ai jamais… discrètement saboté un plan pour ne pas avoir à y aller.<span class='sx'>Ceux qui l'ont fait : {s}.</span>"},
+/* --- Le plus susceptible --- */
+{m:'suscep',l:1,t:"À 3, pointez la personne la plus susceptible… de rire au pire moment possible.<span class='sx'>La plus pointée : {s}.</span>"},
+{m:'suscep',l:1,t:"À 3, pointez la personne la plus susceptible… d'oublier où elle a garé sa voiture.<span class='sx'>La plus pointée : {s}.</span>"},
+{m:'suscep',l:1,t:"À 3, pointez la personne la plus susceptible… de tout plaquer pour devenir prof de yoga.<span class='sx'>La plus pointée : {s}.</span>"},
+{m:'suscep',l:2,t:"À 3, pointez la personne la plus susceptible… de répondre à un texto pendant un enterrement.<span class='sx'>La plus pointée : {s}.</span>"},
+{m:'suscep',l:2,t:"À 3, pointez la personne la plus susceptible… de s'embrouiller avec un serveur.<span class='sx'>La plus pointée : {s}.</span>"},
+{m:'suscep',l:2,t:"À 3, pointez la personne la plus susceptible… de mentir sur son âge.<span class='sx'>La plus pointée : {s}.</span>"},
+{m:'suscep',l:3,t:"À 3, pointez la personne la plus susceptible… de fouiller le téléphone de son/sa partenaire cette semaine.<span class='sx'>La plus pointée : {s}.</span>"},
+{m:'suscep',l:3,t:"À 3, pointez la personne la plus susceptible… d'avoir un enfant en premier ici.<span class='sx'>La plus pointée : {s}.</span>"},
+{m:'suscep',l:3,t:"À 3, pointez la personne la plus susceptible… de finir cette soirée en larmes (de rire… ou pas).<span class='sx'>La plus pointée : {s}.</span>"},
+/* --- Tu préfères --- */
+{m:'prefere',l:1,t:"Tu préfères… être payé à ne rien faire mais t'ennuyer, ou adorer ton travail mais être mal payé ?<span class='sx'>Votez. La minorité : {s}.</span>"},
+{m:'prefere',l:1,t:"Tu préfères… ne plus jamais faire la queue, ou ne plus jamais voir de pub ?<span class='sx'>Votez. La minorité : {s}.</span>"},
+{m:'prefere',l:2,t:"Tu préfères… que tout le monde connaisse ton salaire, ou tes pires hontes ?<span class='sx'>Votez. La minorité : {s}.</span>"},
+{m:'prefere',l:2,t:"Tu préfères… perdre tous tes souvenirs de soirées, ou toutes tes photos ?<span class='sx'>Votez. La minorité : {s}.</span>"},
+{m:'prefere',l:3,t:"Tu préfères… que le groupe lise tes 5 derniers messages envoyés, ou voie tes 5 dernières photos ?<span class='sx'>Votez. La minorité montre l'un des deux, ou {s}.</span>"},
+{m:'prefere',l:3,t:"Tu préfères… avouer ton pire secret à ta mère, ou à ton boss ?<span class='sx'>Votez. La minorité : {s}.</span>"},
+/* --- Entre deux --- */
+{m:'entre2',l:1,t:"Entre {p} et {p2} : qui rirait en premier dans un moment très sérieux ?<span class='sx'>À 3, tout le monde pointe ! Le plus pointé : {s}.</span>"},
+{m:'entre2',l:1,t:"Entre {p} et {p2} : qui tiendrait le plus longtemps sans téléphone ?<span class='sx'>À 3, tout le monde pointe ! Le moins pointé : {s}.</span>"},
+{m:'entre2',l:1,t:"Entre {p} et {p2} : qui ferait le meilleur témoin de mariage ?<span class='sx'>À 3, tout le monde pointe ! Le moins pointé : {s}.</span>"},
+{m:'entre2',l:2,t:"Entre {p} et {p2} : qui ment le mieux les yeux dans les yeux ?<span class='sx'>À 3, tout le monde pointe ! Le plus pointé : {s}.</span>"},
+{m:'entre2',l:2,t:"Entre {p} et {p2} : qui a le plus honte de son historique musical ?<span class='sx'>À 3, tout le monde pointe ! Le plus pointé : {s}.</span>"},
+{m:'entre2',l:2,t:"Entre {p} et {p2} : qui craquerait en premier en garde à vue ?<span class='sx'>À 3, tout le monde pointe ! Le plus pointé : {s}.</span>"},
+{m:'entre2',l:3,t:"Entre {p} et {p2} : qui trahirait l'autre pour 10 000 € ?<span class='sx'>À 3, tout le monde pointe ! Le plus pointé : {s}.</span>"},
+{m:'entre2',l:3,t:"Entre {p} et {p2} : qui a déjà parlé dans le dos de quelqu'un présent ici ?<span class='sx'>À 3, tout le monde pointe ! Le plus pointé : {s}.</span>"},
+{m:'entre2',l:3,t:"Entre {p} et {p2} : qui finira sa vie seul(e) avec 12 chats ?<span class='sx'>À 3, tout le monde pointe ! Le plus pointé : {s}.</span>"},
+/* --- Paranoïa --- */
+{m:'parano',l:3,q:"Qui ici surestime le plus son charme ?"},
+{m:'parano',l:3,q:"Qui écoutes-tu le moins quand il/elle parle ?"},
+{m:'parano',l:3,q:"Qui a le rire le plus insupportable ?"},
+{m:'parano',l:3,q:"À qui ne confierais-tu jamais un secret ?"},
+{m:'parano',l:3,q:"Qui se croit drôle sans vraiment l'être ?"},
+{m:'parano',l:3,q:"Qui ferait n'importe quoi pour être aimé(e) ?"},
+/* --- Duel --- */
+{m:'duel',l:1,t:"{p} vs {p2} : concours de sifflement, la note la plus juste gagne (vote). Le perdant : {s}."},
+{m:'duel',l:1,t:"{p} vs {p2} : le premier à toucher un objet bleu gagne. Le perdant : {s}."},
+{m:'duel',l:2,t:"{p} vs {p2} : alternez des mots de plus de 3 syllabes. Le premier qui sèche : {s}."},
+{m:'duel',l:2,t:"{p} vs {p2} : improvisez chacun une pub pour le même objet (choisi par le groupe). Vote. Le perdant : {s}."},
+{m:'duel',l:3,t:"{p} vs {p2} : chacun décrit l'autre en UN mot, le plus honnête possible. Le plus violent (vote) gagne. Le perdant : {s}."},
+{m:'duel',l:3,t:"{p} vs {p2} : duel de silence gênant. Fixez-vous sans parler. Le premier qui meuble : {s}."},
+
+/* ============ CHAOS IMPITOYABLE (+22) ============ */
+{m:'verite',l:3,t:"{p}, quelle est la chose la plus égoïste que tu aies faite à un ami ? Détails, ou {s} ×2."},
+{m:'verite',l:3,t:"{p}, as-tu déjà été jaloux(se) de la réussite de quelqu'un ici ? De qui ? Réponds ou {s} ×2."},
+{m:'verite',l:3,t:"{p}, si tu devais couper les ponts avec UNE personne de cette pièce, qui ? Pas de joker, ou {s} ×2."},
+{m:'verite',l:3,t:"{p}, quelle amitié dans cette pièce est la plus déséquilibrée, selon toi ? Explique."},
+{m:'verite',l:3,t:"{p}, qu'est-ce que le groupe pense de toi… et que personne n'ose te dire ? Devine. Le groupe confirme ou non."},
+{m:'parano',l:3,q:"Qui ici réussit le moins bien sa vie en ce moment ?"},
+{m:'parano',l:3,q:"Qui donne les pires conseils ?"},
+{m:'parano',l:3,q:"Qui est le plus égoïste de cette pièce ?"},
+{m:'parano',l:3,q:"Qui n'a jamais vraiment reconnu ce que tu as fait pour lui/elle ?"},
+{m:'parano',l:3,q:"Sans qui ce groupe fonctionnerait exactement pareil ?"},
+{m:'parano',l:3,q:"Qui aura le moins changé dans 10 ans — et ce n'est pas un compliment ?"},
+{m:'entre2',l:3,t:"Entre {p} et {p2} : qui serait le moins fiable en cas de vrai coup dur ?<span class='sx'>À 3, tout le monde pointe ! Le plus pointé : {s}.</span>"},
+{m:'entre2',l:3,t:"Entre {p} et {p2} : qui doit le plus à l'autre dans cette amitié ?<span class='sx'>À 3, tout le monde pointe ! Le plus pointé : {s}.</span>"},
+{m:'entre2',l:3,t:"Entre {p} et {p2} : qui écoute le moins quand l'autre parle ?<span class='sx'>À 3, tout le monde pointe ! Le plus pointé : {s}.</span>"},
+{m:'entre2',l:3,t:"Entre {p} et {p2} : qui serait remplacé le plus facilement dans le groupe ?<span class='sx'>À 3, tout le monde pointe ! Le plus pointé : {s} — courage.</span>"},
+{m:'suscep',l:3,t:"À 3, pointez la personne la plus susceptible… de rater ton mariage pour une mauvaise raison.<span class='sx'>La plus pointée : {s}.</span>"},
+{m:'suscep',l:3,t:"À 3, pointez la personne la plus susceptible… d'oublier ton anniversaire sans même s'excuser.<span class='sx'>La plus pointée : {s}.</span>"},
+{m:'suscep',l:3,t:"À 3, pointez la personne la plus susceptible… de vous oublier tous si elle déménage loin.<span class='sx'>La plus pointée : {s}.</span>"},
+{m:'jamais',l:3,t:"Je n'ai jamais… douté qu'une amitié dans cette pièce soit vraiment réciproque.<span class='sx'>Ceux qui l'ont fait : {s}. On ne demande pas laquelle. Ou si ?</span>"},
+{m:'jamais',l:3,t:"Je n'ai jamais… envié la vie de quelqu'un présent ce soir.<span class='sx'>Ceux qui l'ont fait : {s}.</span>"},
+{m:'quidit',l:3,q:"La chose que tu n'oses pas dire à quelqu'un ici ?"},
+{m:'quidit',l:3,q:"Le truc chez ce groupe qui t'épuise, honnêtement ?"},
+];
+
+/* ---------- état ---------- */
+let players=[], intensity=1, deckSize=45, alcohol=false;
+let deck=[], idx=0, timerInt=null, bombTimeout=null;
+let stats={targeted:{},sanctions:{},done:{}};
+let usedKeys=new Set();
+let selected=new Set(Object.keys(MODES));
+let roulUses=3;
+let teamCount=0;
+let multLeft=0;
+let muted=false;
+
+/* ---------- sons & vibrations ---------- */
+let AC=null;
+function ac(){AC=AC||new (window.AudioContext||window.webkitAudioContext)();return AC}
+function tone(f,o={}){
+  if(muted)return;
+  const {d=.18,type='sine',g=.06,slide=0,when=0}=o;
+  try{
+    const ctx=ac(),t=ctx.currentTime+when;
+    const osc=ctx.createOscillator(),v=ctx.createGain();
+    osc.type=type;osc.frequency.setValueAtTime(f,t);
+    if(slide)osc.frequency.exponentialRampToValueAtTime(Math.max(40,f+slide),t+d);
+    v.gain.setValueAtTime(0.0001,t);
+    v.gain.exponentialRampToValueAtTime(g,t+0.02);
+    v.gain.exponentialRampToValueAtTime(0.0001,t+d);
+    osc.connect(v);v.connect(ctx.destination);
+    osc.start(t);osc.stop(t+d+.05);
+  }catch(e){}
+}
+function snd(kind){
+  const K={
+    deal:()=>tone(540,{d:.14,type:'triangle',g:.045,slide:220}),
+    tap:()=>tone(820,{d:.07,g:.04}),
+    add:()=>{tone(520,{d:.1});tone(780,{d:.14,when:.07})},
+    win:()=>{tone(523,{d:.12});tone(659,{d:.12,when:.08});tone(784,{d:.22,when:.16,g:.07})},
+    fail:()=>{tone(340,{d:.2,type:'triangle',slide:-140,g:.05});tone(240,{d:.26,type:'triangle',when:.13,slide:-90,g:.045})},
+    tick:()=>tone(1000,{d:.05,g:.03}),
+    boom:()=>{tone(130,{d:.5,type:'triangle',g:.2,slide:-80});tone(65,{d:.65,g:.16,when:.04,slide:-25})},
+    end:()=>{[523,659,784,1046].forEach((f,i)=>tone(f,{d:.2,when:i*.09}))},
+    reveal:()=>tone(420,{d:.28,slide:260,g:.05}),
+    event:()=>{[392,523,659,784,1046].forEach((f,i)=>tone(f,{d:.13,when:i*.06,g:.055}))},
+  };
+  (K[kind]||(()=>{}))();
+}
+function vib(p){try{navigator.vibrate&&navigator.vibrate(p)}catch(e){}}
+function toggleMute(){muted=!muted;document.getElementById('muteBtn').textContent=muted?'🔇':'🔊'}
+
+/* ---------- navigation ---------- */
+function go(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  if(id==='settings')renderTeamOptions();
+}
+
+/* ---------- joueurs (avec avatars) ---------- */
+function freeEmoji(){
+  const used=players.map(p=>p.e);
+  const free=EMOJIS.filter(e=>!used.includes(e));
+  return free.length?free[Math.floor(Math.random()*free.length)]:EMOJIS[Math.floor(Math.random()*EMOJIS.length)];
+}
+function addPlayer(){
+  const inp=document.getElementById('pname');
+  const n=inp.value.trim();
+  if(!n||players.some(p=>p.n===n)||players.length>=12) return;
+  players.push({n,e:freeEmoji()}); inp.value=''; inp.focus(); renderChips(); snd('add');
+}
+function removePlayer(n){ players=players.filter(p=>p.n!==n); renderChips(); }
+function cycleEmoji(n){
+  const p=players.find(x=>x.n===n); if(!p)return;
+  p.e=EMOJIS[(EMOJIS.indexOf(p.e)+1)%EMOJIS.length];
+  renderChips(); snd('tap');
+}
+function av(name){const p=players.find(x=>x.n===name);return p?p.e:'🙂'}
+function renderChips(){
+  document.getElementById('chips').innerHTML=players.map(p=>
+    `<span class="chip"><span class="av" onclick="cycleEmoji('${p.n.replace(/'/g,"\\'")}')">${p.e}</span>${p.n}<b onclick="removePlayer('${p.n.replace(/'/g,"\\'")}')">×</b></span>`).join('');
+  document.getElementById('toSettings').disabled=players.length<2;
+}
+
+/* ---------- sélection des jeux ---------- */
+function renderGameGrid(){
+  document.getElementById('ggrid').innerHTML=Object.entries(MODES).map(([k,m])=>
+    `<div class="gchip ${selected.has(k)?'sel':'off'}" data-k="${k}" onclick="toggleGame('${k}')"><span class="ge">${m.e}</span>${m.label}</div>`).join('');
+  document.getElementById('goBtn').disabled=selected.size===0;
+}
+function toggleGame(k){
+  if(selected.has(k))selected.delete(k);else selected.add(k);
+  renderGameGrid(); snd('tap');
+}
+function allGames(v){selected=v?new Set(Object.keys(MODES)):new Set();renderGameGrid();snd('tap')}
+
+/* ---------- équipes selon le nombre de joueurs ---------- */
+function teamLabel(n,k){
+  const base=Math.floor(n/k),rem=n%k;
+  if(!rem) return `${k} équipes de ${base}`;
+  const sizes=Array.from({length:k},(_,i)=>base+(i<rem?1:0));
+  return `${k} équipes (${sizes.join('+')})`;
+}
+function renderTeamOptions(){
+  const z=document.getElementById('teamzone'); if(!z)return;
+  const n=players.length;
+  if(n<4){z.innerHTML='';teamCount=0;return;}
+  let opts=[{k:0,lbl:'Sans équipes'}];
+  for(let k=2;k<=Math.floor(n/2)&&k<=4;k++) opts.push({k,lbl:teamLabel(n,k)});
+  if(teamCount>Math.floor(n/2))teamCount=0;
+  z.innerHTML=`<div class="seclbl">ÉQUIPES</div>
+    <div class="ggrid">${opts.map(o=>`<div class="gchip ${teamCount===o.k?'sel':''}" onclick="setTeamCount(${o.k})"><span class="ge">${o.k?'🏳️':'🙅'}</span>${o.lbl}</div>`).join('')}</div>`;
+}
+function setTeamCount(k){teamCount=k;renderTeamOptions();snd('tap')}
+renderGameGrid();
+(function(){
+  const names=Object.values(MODES).map(m=>`${m.e} ${m.label}`).join(' <b>·</b> ');
+  const el=document.getElementById('mtrack');
+  if(el) el.innerHTML=`<span>${names}</span> <b>·</b> <span>${names}</span> <b>·</b> `;
+})();
+
+/* ---------- réglages ---------- */
+document.querySelectorAll('#intensity .opt').forEach(o=>o.onclick=()=>{
+  document.querySelectorAll('#intensity .opt').forEach(x=>x.classList.remove('sel'));
+  o.classList.add('sel'); intensity=+o.dataset.v;
+});
+document.querySelectorAll('#duration .opt').forEach(o=>o.onclick=()=>{
+  document.querySelectorAll('#duration .opt').forEach(x=>x.classList.remove('sel'));
+  o.classList.add('sel'); deckSize=+o.dataset.v;
+});
+
+/* ---------- moteur ---------- */
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function ckey(c){return (c.t||'')+(c.word||'')+(c.id||'')+(c.cat||'')+(c.cat2||'')+(c.song||'')+(c.mis||'')+(c.q||'')+(c.pair?c.pair.join('/'):'')}
+function pick2(){
+  const names=players.map(p=>p.n);
+  const a=names[Math.floor(Math.random()*names.length)];
+  let b=a; while(names.length>1&&b===a) b=names[Math.floor(Math.random()*names.length)];
+  return [a,b];
+}
+function sanction(){
+  const pool=SANCTIONS[alcohol?'alc':'soft'][intensity];
+  const t=pool[Math.floor(Math.random()*pool.length)];
+  return multLeft>0 ? t+' — ×2, Happy Hour !' : t;
+}
+function pspan(name){return `<span class="pn">${av(name)} ${name}</span>`}
+
+function spreadModes(cards){
+  const out=[],rest=[...cards];
+  while(rest.length){
+    let i=rest.findIndex(c=>!out.length||c.m!==out[out.length-1].m);
+    if(i===-1)i=0;
+    out.push(rest.splice(i,1)[0]);
+  }
+  return out;
+}
+
+function buildDeck(){
+  const pool=DECK_SRC.filter(c=>c.l<=intensity&&selected.has(c.m));
+  let fresh=shuffle(pool.filter(c=>!usedKeys.has(ckey(c))));
+  let seen=shuffle(pool.filter(c=>usedKeys.has(ckey(c))));
+  // mélange pondéré : ~60% de cartes du niveau choisi, le reste des niveaux inférieurs, ordre 100% aléatoire
+  const hi=shuffle(fresh.filter(c=>c.l===intensity));
+  const lo=shuffle(fresh.filter(c=>c.l<intensity));
+  fresh=[];
+  while(hi.length||lo.length){
+    if(hi.length&&(Math.random()<0.6||!lo.length))fresh.push(hi.shift());
+    else if(lo.length)fresh.push(lo.shift());
+  }
+  let chosen=[...fresh,...seen].slice(0,Math.min(deckSize,pool.length));
+  if(fresh.length===0) usedKeys.clear();
+  chosen.forEach(c=>usedKeys.add(ckey(c)));
+  deck=spreadModes(shuffle(chosen)).map(c=>({...c}));
+  for(let i=deck.length-1;i>=0;i--){
+    if(deck[i].m==='virus'&&deck[i].end){
+      const at=Math.min(i+4+Math.floor(Math.random()*4),deck.length);
+      deck.splice(at,0,{m:'virus',l:1,t:"✔ "+deck[i].end,cure:true,p:deck[i]._p});
+    }
+  }
+  // événements surprise, tous les 7 à 12 cartes
+  const evs=shuffle([...EVENTS]);
+  let epos=5+Math.floor(Math.random()*4), ei=0;
+  while(epos<deck.length&&ei<evs.length){
+    deck.splice(epos,0,{m:'event',ev:evs[ei++]});
+    epos+=7+Math.floor(Math.random()*6);
+  }
+}
+
+function startGame(){
+  alcohol=document.getElementById('alcSw').classList.contains('on');
+  stats={targeted:{},sanctions:{},done:{}};
+  players.forEach(p=>{stats.targeted[p.n]=0;stats.sanctions[p.n]=0;stats.done[p.n]=0});
+  buildDeck(); idx=0; roulUses=3; multLeft=0;
+  if(teamCount>1) deck.unshift({m:'teams'});
+  go('game'); renderCard();
+}
+
+function unitTxt(n){
+  return alcohol?`${n} gorgée${n>1?'s':''}`:`${n} squat${n>1?'s':''}`;
+}
+
+function renderCard(){
+  clearInterval(timerInt); clearTimeout(bombTimeout);
+  if(idx>=deck.length){endGame();return}
+  const c=deck[idx];
+  const ez=document.getElementById('eventZone');
+  if(ez) ez.innerHTML=(multLeft>0&&c.m!=='event')?`<div class="persist" style="border-color:var(--acid);color:#f2ffd0"><b style="color:var(--acid)">⚡ HAPPY HOUR ×2</b> — encore ${multLeft} carte${multLeft>1?'s':''} !</div>`:'';
+  if(c.m==='teams'){
+    const names=shuffle(players.map(x=>x.n));
+    const TCOL=[['ROUGE','#ff4d6d'],['BLEUE','#4de3ff'],['VERTE','#7dff8a'],['JAUNE','#e8ff47'],['VIOLETTE','#b04dff'],['ORANGE','#ff9f45']];
+    const base=Math.floor(names.length/teamCount),rem=names.length%teamCount;
+    let i2=0,teamsHtml='';
+    for(let t=0;t<teamCount;t++){
+      const size=base+(t<rem?1:0);
+      const members=names.slice(i2,i2+size); i2+=size;
+      teamsHtml+=`<div style="background:#2c1a3c;border-radius:14px;padding:10px 12px;margin:7px 0"><div style="font-family:'Unbounded';font-size:12px;font-weight:900;color:${TCOL[t%6][1]}">ÉQUIPE ${TCOL[t%6][0]}</div><div style="font-size:14px;font-weight:600;margin-top:4px">${members.map(n=>av(n)+' '+n).join(' · ')}</div></div>`;
+    }
+    const cardT=document.getElementById('gcard');
+    cardT.style.setProperty('--mode-glow','rgba(232,255,71,.12)');
+    cardT.innerHTML=`<span class="badge" style="--mode-c:var(--acid)">LES ÉQUIPES DU SOIR</span>
+      <div style="overflow-y:auto;margin-top:12px;max-height:44vh">${teamsHtml}</div>
+      <div class="prompt" style="font-family:'Sora';font-weight:400;font-size:13px;color:var(--dim);margin-top:10px;line-height:1.55">Solidarité : quand un joueur subit une sanction, son équipe peut la partager avec lui. Et quand c'est possible, les duels se jouent contre l'équipe adverse !</div>
+      <div class="cardbtns"><button class="btn" onclick="next()">SUIVANT →</button></div>`;
+    snd('deal'); vib(12); updateHud(); return;
+  }
+  if(c.m==='event'){
+    const ev=c.ev;
+    if(ev.fx==='x2') multLeft=3;
+    const evp=players[Math.floor(Math.random()*players.length)].n;
+    const d=ev.d
+      .replace(/{p}/g,pspan(evp))
+      .replace(/{s}/g,`<b style="color:var(--coral)">${sanction()}</b>`)
+      .replace(/{give}/g,alcohol?'distribue 2 gorgées':'distribue un gage')
+      .replace(/{sip}/g,alcohol?'buvez 1 gorgée':'faites 3 squats chacun');
+    const cardE=document.getElementById('gcard');
+    cardE.style.setProperty('--mode-glow','rgba(232,255,71,.22)');
+    cardE.innerHTML=`<span class="badge" style="--mode-c:var(--coral);color:#fff">⚡ ÉVÉNEMENT SURPRISE</span>
+      <div class="evbig">${ev.e}</div>
+      <div class="evtitle">${ev.t}</div>
+      <div class="prompt" style="text-align:center;font-family:'Sora';font-weight:600;font-size:15px;margin:10px 0 auto;line-height:1.6">${d}</div>
+      <div class="cardbtns"><button class="btn coral" onclick="next()">C'EST NOTÉ →</button></div>`;
+    snd('event'); vib([40,30,40,30,90]); updateHud(); return;
+  }
+  const mode=MODES[c.m];
+  const [p,p2]=pick2();
+  if(!c.cure){c._p=c._p||p;}
+  const tp=c.cure&&c.p?c.p:p;
+  snd('deal'); vib(12);
+
+  const card=document.getElementById('gcard');
+  card.style.setProperty('--mode-glow',mode.glow);
+  let html=`<span class="badge" style="--mode-c:${mode.c}">${mode.e} ${mode.label}</span>`;
+
+  /* ----- MIME ----- */
+  if(c.m==='mime'){
+    stats.targeted[p]++;
+    html+=`<div class="who"><span class="wav">${av(p)}</span><span class="wnm">${p}</span></div>`;
+    html+=`<div class="reveal">
+      <p style="font-size:14px;color:var(--ink)">Passe le téléphone à ${pspan(p)}.<br>Toi seul(e) regardes le mot, puis fais-le deviner en mimant !</p>
+      <div class="hidden-word" onclick="this.classList.toggle('show')">${c.word}</div>
+      <p>(touche pour révéler / cacher)</p>
+      <div class="timerwrap"><span class="timer" id="tmr">${c.timer}</span></div>
+    </div>
+    <div class="cardbtns">
+      <button class="btn coral" style="font-size:13px" onclick="fail('${p}')">RATÉ</button>
+      <button class="btn" style="font-size:13px" onclick="win('${p}')">TROUVÉ !</button>
+    </div>`;
+    card.innerHTML=html; startTimer(c.timer); updateHud(); return;
+  }
+
+  /* ----- C'EST UN 10 MAIS… ----- */
+  if(c.m==='dix'){
+    stats.targeted[p]++;
+    const base=Math.floor(Math.random()*11);
+    let target=base; while(target===base) target=Math.floor(Math.random()*11);
+    const diff=target-base;
+    html+=`<div class="who"><span class="wav">${av(p)}</span><span class="wnm">${p}</span></div>`;
+    html+=`<div class="prompt" style="font-size:16px">À toi de jouer !
+      <span class="rl">1. Regarde le secret ci-dessous (toi seul !).<br>
+      2. Dis à voix haute : « C'est un <b>${base}</b>, mais… » et invente un défaut ou une qualité qui vaut exactement <b style="color:var(--acid)">${diff>0?'+'+diff:diff}</b>.<br>
+      3. ${pspan(p2)} annonce le score final qu'il/elle a compris !</span></div>
+      <div class="reveal" style="margin:0">
+        <div class="hidden-word" onclick="this.classList.toggle('show')">C'EST UN ${base}<br>→ FAIS DEVINER ${target}</div>
+        <p>Réservé à ${p} · Bonne réponse : personne ne trinque · Sinon : ${p} et ${p2} prennent <b>1 ${alcohol?'gorgée':'squat'} par point d'écart (3 max)</b> — l'indice était peut-être nul…</p>
+      </div>
+      <div class="cardbtns"><button class="btn" onclick="next()">SUIVANT →</button></div>`;
+    card.innerHTML=html; updateHud(); return;
+  }
+
+  /* ----- LE DÉ MAUDIT ----- */
+  if(c.m==='des'){
+    if(!c._seq){c._seq=shuffle(players.map(x=>x.n));c._i=0;c._rolls={};}
+    const done=Object.entries(c._rolls).map(([n,v])=>`<span style="background:#2c1a3c;border-radius:99px;padding:5px 10px;font-size:12px;font-weight:600;margin:3px;display:inline-block">${av(n)} ${n} : <b style="color:var(--acid)">${v}</b></span>`).join('');
+    const board=`<div style="margin-top:12px;margin-bottom:auto;text-align:center;min-height:32px">${done||`<span style="font-size:12px;color:var(--dim)">Les scores s'afficheront ici…</span>`}</div>`;
+    if(c._i<c._seq.length){
+      const cur=c._seq[c._i];
+      html+=board;
+      html+=`<div class="who" style="justify-content:center;margin-top:0"><span class="wav">${av(cur)}</span><span class="wnm">${cur}</span></div>
+        <div class="dicewrap"><div class="dice" id="dice3d">
+          <div class="dface" style="transform:rotateY(0deg) translateZ(42px)">1</div>
+          <div class="dface" style="transform:rotateY(90deg) translateZ(42px)">2</div>
+          <div class="dface" style="transform:rotateY(180deg) translateZ(42px)">3</div>
+          <div class="dface" style="transform:rotateY(-90deg) translateZ(42px)">4</div>
+          <div class="dface" style="transform:rotateX(90deg) translateZ(42px)">5</div>
+          <div class="dface" style="transform:rotateX(-90deg) translateZ(42px)">6</div>
+        </div></div>
+        <div id="diceMsg" style="text-align:center;font-size:13.5px;min-height:24px;color:var(--ink)"></div>
+        <div style="text-align:center;font-size:11.5px;color:var(--dim)">Le plus petit score trinque. Égalité au plus bas : on relance !</div>
+        <div class="cardbtns"><button class="btn coral" id="diceGo" onclick="diceRoll()">LANCER LE DÉ</button></div>`;
+    }else{
+      const entries=Object.entries(c._rolls);
+      const min=Math.min(...entries.map(e=>e[1]));
+      const losers=entries.filter(e=>e[1]===min).map(e=>e[0]);
+      if(losers.length>1){
+        html+=board;
+        html+=`<div class="prompt" style="text-align:center;font-size:17px;margin-top:0">ÉGALITÉ à <b style="color:var(--acid)">${min}</b> !<br><span style="font-size:14px">${losers.map(n=>av(n)+' '+n).join(' · ')}</span>
+          <span class="rl" style="text-align:center">Le destin exige un perdant unique. Les ex æquo relancent entre eux !</span></div>
+          <div class="cardbtns"><button class="btn coral" onclick="diceTie()">ILS RELANCENT !</button></div>`;
+      }else{
+        html+=board;
+        html+=`<div class="prompt" style="text-align:center;font-size:17px;margin-top:0">${pspan(losers[0])} a fait le plus petit score : <b style="color:var(--coral)">${min}</b> !
+          <span class="rl" style="text-align:center">Sentence du dé : <b style="color:var(--coral)">${sanction()}</b></span></div>
+          <div class="cardbtns"><button class="btn" onclick="fail('${losers[0].replace(/'/g,"\\'")}')">SUIVANT →</button></div>`;
+      }
+    }
+    card.innerHTML=html; updateHud(); return;
+  }
+
+  /* ----- PARANOÏA ----- */
+  if(c.m==='parano'){
+    stats.targeted[p]++;
+    html+=`<div class="who"><span class="wav">${av(p)}</span><span class="wnm">${p}</span></div>`;
+    html+=`<div class="reveal">
+      <p style="font-size:13.5px;color:var(--ink)">Passe le téléphone à ${pspan(p)}. Lis la question en secret, puis réponds à voix haute par <b>UN prénom</b> présent dans la pièce. Sans rien expliquer !</p>
+      <div class="hidden-word" style="font-size:clamp(15px,4.6vw,20px)" onclick="this.classList.toggle('show')">${c.q}</div>
+      <p>(touche pour révéler / cacher)</p>
+      <p style="color:var(--ink);font-size:12.5px;margin-top:10px">La personne nommée veut savoir pourquoi ?<br>La pièce va décider…</p>
+    </div>
+    <div class="cardbtns"><button class="btn coral" onclick="paranoFlip()">PILE OU FACE</button></div>`;
+    card.innerHTML=html; updateHud(); return;
+  }
+
+  /* ----- LA BOMBE ----- */
+  if(c.m==='bombe'){
+    const s=sanction();
+    html+=`<div class="bombzone">
+      <div class="bomb" id="bombIco">💣</div>
+      <div class="prompt" style="margin:10px 0 0">Citez à tour de rôle <b style="color:var(--acid)">${c.cat}</b> et passez le téléphone !
+      <span class="rl">La bombe explose à un moment aléatoire… Celui qui tient le téléphone au BOOM : <b style="color:var(--coral)">${s}</b>. Répéter une réponse = passer le téléphone quand même.</span></div>
+    </div>
+    <div class="cardbtns"><button class="btn coral" id="armBtn" onclick="armBomb()">AMORCER LA BOMBE</button></div>`;
+    card.innerHTML=html; updateHud(); return;
+  }
+
+  /* ----- UNDERCOVER ----- */
+  if(c.m==='undercover'){
+    renderUndercover(c,card,html); updateHud(); return;
+  }
+
+  /* ----- MISSION SECRÈTE ----- */
+  if(c.m==='killer'){
+    stats.targeted[p]++;
+    const reward=alcohol?'distribue 3 gorgées':'donne un gage à la personne de ton choix';
+    html+=`<div class="who"><span class="wav">${av(p)}</span><span class="wnm">${p}</span></div>`;
+    html+=`<div class="reveal">
+      <p style="font-size:14px;color:var(--ink)">Passe le téléphone à ${pspan(p)}. Ta mission secrète, à toi seul :</p>
+      <div class="hidden-word" style="font-size:clamp(15px,4.5vw,19px)" onclick="this.classList.toggle('show')">${c.mis}</div>
+      <p>(touche pour révéler / cacher)</p>
+      <p style="margin-top:14px;color:var(--ink)">Mission accomplie avant la fin de la partie : révèle-la et <b style="color:var(--acid)">${reward}</b>.<br>Démasqué(e) en flagrant délit : <b style="color:var(--coral)">${sanction()}</b>.</p>
+    </div>
+    <div class="cardbtns"><button class="btn" onclick="next()">SUIVANT →</button></div>`;
+    card.innerHTML=html; updateHud(); return;
+  }
+
+  /* ----- PETIT BAC ----- */
+  if(c.m==='petitbac'){
+    stats.targeted[p]++;
+    const letter="ABCDEFGLMNPRST".charAt(Math.floor(Math.random()*14));
+    html+=`<div class="who"><span class="wav">${av(p)}</span><span class="wnm">${p}</span></div>`;
+    html+=`<div class="prompt">Petit Bac express !
+      <span class="rl">Catégorie : <b style="color:var(--acid)">${c.cat2}</b> — Lettre : <b style="color:var(--coral);font-size:22px">${letter}</b><br>
+      Dans l'ordre du cercle en partant de ${pspan(p)}, chacun donne une réponse en moins de 3 secondes. Le premier qui sèche ou répète : <b style="color:var(--coral)">${sanction()}</b>.</span></div>
+      <div class="cardbtns"><button class="btn" onclick="next()">SUIVANT →</button></div>`;
+    card.innerHTML=html; updateHud(); return;
+  }
+
+  /* ----- BLIND TEST ----- */
+  if(c.m==='blindtest'){
+    stats.targeted[p]++;
+    html+=`<div class="who"><span class="wav">${av(p)}</span><span class="wnm">${p}</span></div>`;
+    html+=`<div class="reveal">
+      <p style="font-size:14px;color:var(--ink)">Passe le téléphone à ${pspan(p)}.<br>Fredonne ce titre (la-la-la, sans les paroles !), les autres devinent :</p>
+      <div class="hidden-word" style="font-size:clamp(16px,5vw,22px)" onclick="this.classList.toggle('show')">${c.song}</div>
+      <p>(touche pour révéler / cacher)</p>
+      <button class="btn ghost" style="padding:6px;font-size:12px" onclick="btReroll()">Je ne connais pas — changer de titre</button>
+      <div class="timerwrap"><span class="timer" id="tmr">${c.timer}</span></div>
+    </div>
+    <div class="cardbtns">
+      <button class="btn coral" style="font-size:13px" onclick="fail('${p}')">RATÉ</button>
+      <button class="btn" style="font-size:13px" onclick="win('${p}')">TROUVÉ !</button>
+    </div>`;
+    card.innerHTML=html; startTimer(c.timer); updateHud(); return;
+  }
+
+  /* ----- QUI A DIT ÇA ? ----- */
+  if(c.m==='quidit'){
+    renderQuidit(c,card,html); updateHud(); return;
+  }
+
+  /* ----- LE JUSTE PRIX ----- */
+  if(c.m==='prix'){
+    html+=`<div class="prompt" style="font-size:17px">Le Juste Prix : combien coûte ${c.q}
+      <span class="rl">Chacun annonce son estimation à voix haute… puis révélez :</span></div>
+      <div class="reveal" style="margin:0">
+        <div class="hidden-word" style="font-size:clamp(20px,6vw,28px)" onclick="this.classList.toggle('show')">${c.a}</div>
+        <p>Le plus proche <b style="color:var(--acid)">${alcohol?'distribue 2 gorgées':'donne un gage'}</b> · le plus éloigné : <b style="color:var(--coral)">${sanction()}</b>.</p>
+      </div>
+      <div class="cardbtns"><button class="btn" onclick="next()">SUIVANT →</button></div>`;
+    card.innerHTML=html; updateHud(); return;
+  }
+
+  /* ----- CANARI ----- */
+  if(c.m==='canari'){
+    const order=shuffle(players.map(x=>x.n));
+    const list=order.map((n,i)=>`<div style="background:#2c1a3c;border-radius:12px;padding:8px 12px;margin:5px 0;font-size:14px;font-weight:600"><b style="color:var(--acid)">Canari ${i+1}</b> — ${av(n)} ${n}</div>`).join('');
+    html+=`<div class="prompt" style="font-size:15px;margin:10px 0 0">Vos numéros :</div>
+      <div style="overflow-y:auto;max-height:30vh;margin-top:4px">${list}</div>
+      <div class="prompt" style="font-family:'Sora';font-weight:400;font-size:13px;color:var(--ink);margin:10px 0 0;line-height:1.55">${pspan(order[0])} commence : « Canari 1 appelle Canari X ! ». L'appelé enchaîne sans jamais s'arrêter.${c.extra?` <b style="color:var(--acid)">${c.extra}</b>`:''} Qui bégaie, hésite ou se trompe : <b style="color:var(--coral)">${sanction()}</b> — et on repart. Et à un moment surprise… <b style="color:var(--acid)">TOP !</b></div>
+      <div class="cardbtns"><button class="btn coral" id="canGo" onclick="canariArm()">LANCER LE TOUR</button></div>`;
+    card.innerHTML=html; updateHud(); return;
+  }
+
+  /* ----- FAIS DEVINER LE FILM ----- */
+  if(c.m==='films'){
+    stats.targeted[p]++;
+    if(!c._list) c._list=shuffle([...FILMS_POOL]).slice(0,5);
+    html+=`<div class="who"><span class="wav">${av(p)}</span><span class="wnm">${p}</span></div>`;
+    html+=`<div class="reveal">
+      <p style="font-size:13.5px;color:var(--ink)">Passe le téléphone à ${pspan(p)}. Regarde la liste (toi seul), choisis UN film que tu connais et fais-le deviner <b>sans dire le titre</b> :</p>
+      <div class="hidden-word" style="font-size:14px;line-height:1.75;font-weight:700" onclick="this.classList.toggle('show')">${c._list.join('<br>')}</div>
+      <p>(touche pour révéler / cacher)</p>
+      <div class="timerwrap"><span class="timer" id="tmr">60</span></div>
+      <p style="color:var(--ink);font-size:12.5px">Le premier qui trouve <b style="color:var(--acid)">${alcohol?'distribue 2 gorgées':'donne un gage'}</b>. Personne en 60 sec : <b style="color:var(--coral)">${sanction()}</b> pour ${p}.</p>
+    </div>
+    <div class="cardbtns">
+      <button class="btn coral" style="font-size:13px" onclick="fail('${p}')">RATÉ</button>
+      <button class="btn" style="font-size:13px" onclick="win('${p}')">TROUVÉ !</button>
+    </div>`;
+    card.innerHTML=html; startTimer(60); updateHud(); return;
+  }
+
+  /* ----- QUIZ À CHOIX : FAIT FOU, VRAI/FAUX, CAPITALES, CULTURE G, DRAPEAUX, MARQUES, PLUS OU MOINS ----- */
+  if(['anecdote','vraifaux','capitales','quizg','drapeaux','marques','plusmoins'].includes(c.m)){
+    c._opts=c.m==='vraifaux'?['VRAI','FAUX']:c.m==='plusmoins'?['PLUS','MOINS']:shuffle([...c.opts]);
+    c._correct=c.m==='vraifaux'?(c.v?'VRAI':'FAUX'):c.a;
+    c._done=false;
+    html+=`<div class="prompt" style="font-size:${(c.m==='vraifaux'||c.m==='plusmoins')?'19px':'17px'}">${c.q.replace('___','<b style="color:var(--acid)">＿＿＿</b>')}
+      <span class="rl">Chacun annonce son choix à voix haute… puis touchez une réponse pour vérifier !</span></div>
+      <div class="optgrid">${c._opts.map((o,i)=>`<button class="optbtn" id="ob${i}" onclick="ansPick(${i})">${o}</button>`).join('')}</div>
+      <div id="verdict" style="font-size:12.5px;color:var(--dim);margin-top:12px;line-height:1.5"></div>
+      <div class="cardbtns"><button class="btn" onclick="next()">SUIVANT →</button></div>`;
+    card.innerHTML=html; updateHud(); return;
+  }
+
+  /* ----- cartes texte standard ----- */
+  if(c.t.includes('{p}')&&!c.cure){stats.targeted[p]++}
+  let who='';
+  if(!c.cure&&c.t.includes('{p2}')&&['duel','chifoumi','debat','entre2','connais'].includes(c.m)){
+    who=`<div class="who vs"><span class="wav">${av(tp)}</span><span class="wnm">${tp}</span><span class="wvs">VS</span><span class="wav">${av(p2)}</span><span class="wnm">${p2}</span></div>`;
+  }else if(!c.cure&&c.t.includes('{p}')){
+    who=`<div class="who"><span class="wav">${av(tp)}</span><span class="wnm">${tp}</span></div>`;
+  }
+  let txt=c.t
+    .replace(/{p2}/g,pspan(p2))
+    .replace(/{p}/g,pspan(tp))
+    .replace(/{s}/g,`<b style="color:var(--coral)">${sanction()}</b>`);
+  html+=who+`<div class="prompt">${txt}</div>`;
+  if(c.timer) html+=`<div class="timerwrap"><span class="timer" id="tmr">${c.timer}</span></div>`;
+
+  const targeted=c.t.includes('{p}')&&['verite','action','chrono','duel','chifoumi'].includes(c.m)&&!c.cure;
+  if(targeted){
+    html+=`<div class="cardbtns">
+      <button class="btn coral" style="font-size:13px" onclick="fail('${tp}')">SANCTION</button>
+      <button class="btn" style="font-size:13px" onclick="win('${tp}')">RELEVÉ !</button>
+    </div>`;
+  }else{
+    html+=`<div class="cardbtns"><button class="btn" onclick="next()">SUIVANT →</button></div>`;
+  }
+  card.innerHTML=html;
+  if(c.timer) startTimer(c.timer);
+  updateHud();
+
+  const zone=document.getElementById('persistZone');
+  if(c.m==='virus'&&!c.cure){
+    zone.innerHTML=`<div class="persist"><b>RÈGLE ACTIVE :</b> ${txt.replace(/<[^>]+>/g,'').replace('VIRUS : ','')}</div>`;
+  }
+  if(c.cure){zone.innerHTML='';}
+}
+
+/* ----- Bombe : timer caché aléatoire ----- */
+function armBomb(){
+  const btn=document.getElementById('armBtn');
+  if(btn){btn.textContent="ÇA TOURNE… PASSEZ-VOUS LE TÉLÉPHONE !";btn.disabled=true;}
+  const delay=12000+Math.random()*33000; // 12 à 45 s
+  const ico=document.getElementById('bombIco');
+  setTimeout(()=>{if(ico)ico.classList.add('fast')},delay*0.65);
+  let tickInt=setInterval(()=>snd('tick'),900);
+  bombTimeout=setTimeout(()=>{
+    clearInterval(tickInt);
+    snd('boom'); vib([120,60,300]);
+    document.body.classList.add('boom');
+    setTimeout(()=>document.body.classList.remove('boom'),600);
+    const card=document.getElementById('gcard');
+    if(ico){ico.textContent='💥';ico.classList.remove('fast');ico.style.animation='none';}
+    const bz=card.querySelector('.bombzone .prompt');
+    if(bz) bz.innerHTML=`<b style="color:var(--coral);font-size:26px">BOOM !</b><span class="rl">Celui qui tient le téléphone applique la sanction annoncée. Sans rancune.</span>`;
+    const btns=card.querySelector('.cardbtns');
+    if(btns) btns.innerHTML=`<button class="btn" onclick="next()">SUIVANT →</button>`;
+  },delay);
+}
+
+/* ----- Duel Express : régler une rivalité en 30 secondes ----- */
+let duelSel=[];
+function openDuel(){duelSel=[];duelUI();}
+function duelClose(){document.getElementById('roul').style.display='none';}
+function duelUI(){
+  const o=document.getElementById('roul'); o.style.display='flex';
+  const T=`<div style="font-family:'Unbounded';font-size:13px;letter-spacing:.15em;color:var(--dim);margin-bottom:14px">⚔️ DUEL EXPRESS</div>`;
+  if(duelSel.length<2){
+    const chips=players.filter(x=>!duelSel.includes(x.n)).map(x=>`<button class="optbtn" style="font-size:12px" onclick="duelPick('${x.n.replace(/'/g,"\\'")}')">${x.e} ${x.n}</button>`).join('');
+    o.innerHTML=T+`<div style="color:var(--ink);font-size:14px;margin-bottom:12px;text-align:center">${duelSel.length===0?'Une rivalité à régler ? Choisis le premier rival :':`${av(duelSel[0])} ${duelSel[0]} affronte…`}</div>
+      <div class="optgrid" style="width:100%;max-width:340px">${chips}</div>
+      <div style="width:100%;max-width:320px;margin-top:18px"><button class="btn ghost" onclick="duelClose()">Fermer</button></div>`;
+  }else{
+    o.innerHTML=T+`<div style="color:var(--ink);font-size:15px;font-weight:700;margin-bottom:14px;text-align:center">${av(duelSel[0])} ${duelSel[0]} <span style="color:var(--coral)">VS</span> ${av(duelSel[1])} ${duelSel[1]}</div>
+      <div style="color:var(--dim);font-size:12px;margin-bottom:10px">Choisissez votre arme :</div>
+      <div class="optgrid" style="width:100%;max-width:340px">
+        <button class="optbtn" onclick="duelGame('pf')">🪙 PILE OU FACE</button>
+        <button class="optbtn" onclick="duelGame('dice')">🎲 LE PLUS HAUT DÉ</button>
+        <button class="optbtn" onclick="duelGame('chifoumi')">✊ CHIFOUMI</button>
+        <button class="optbtn" onclick="duelGame('regard')">👁 CONCOURS DE REGARD</button>
+      </div>
+      <div style="width:100%;max-width:320px;margin-top:18px"><button class="btn ghost" onclick="duelClose()">Fermer</button></div>`;
+  }
+}
+function duelPick(n){duelSel.push(n);snd('tap');duelUI();}
+function duelGame(k){
+  const [a,b]=duelSel; const o=document.getElementById('roul');
+  const T=`<div style="font-family:'Unbounded';font-size:13px;letter-spacing:.15em;color:var(--dim);margin-bottom:14px">⚔️ DUEL EXPRESS</div>`;
+  if(k==='pf'){
+    const pile=Math.random()<0.5;
+    o.innerHTML=T+`<div style="color:var(--ink);font-size:13px;margin-bottom:4px">${av(a)} ${a} = <b>PILE</b> · ${av(b)} ${b} = <b>FACE</b></div>
+      <div class="flipwrap go"><div class="coin flip" style="--endrot:${pile?'3240deg':'3420deg'}"><div class="cedge" style="transform:translateZ(2.5px)"></div><div class="cedge"></div><div class="cedge" style="transform:translateZ(-2.5px)"></div><div class="cface front">PILE</div><div class="cface back">FACE</div></div><div class="cshadow"></div></div>
+      <div id="duelRes" style="color:var(--ink);font-size:14px;min-height:56px;text-align:center;line-height:1.6;margin-top:8px"></div>
+      <div style="width:100%;max-width:320px;margin-top:10px"><button class="btn ghost" id="duelCl" style="visibility:hidden" onclick="duelClose()">Fermer</button></div>`;
+    snd('reveal');
+    setTimeout(()=>{
+      const w=pile?a:b, l=pile?b:a;
+      const r=document.getElementById('duelRes');
+      if(r)r.innerHTML=`<b style="font-family:'Unbounded';color:var(--acid)">${pile?'PILE':'FACE'} !</b> ${av(w)} ${w} l'emporte.<br>${av(l)} ${l} : <b style="color:var(--coral)">${sanction()}</b>`;
+      snd('win'); vib([50,40,90]); showRoast('fail',l);
+      const cb=document.getElementById('duelCl'); if(cb)cb.style.visibility='visible';
+    },2700);
+  }else if(k==='dice'){
+    o.innerHTML=T+`<div class="roulname" id="duelDice" style="font-size:clamp(18px,5.5vw,26px)">…</div>
+      <div id="duelRes" style="color:var(--ink);font-size:14px;min-height:56px;text-align:center;line-height:1.6;margin-top:8px"></div>
+      <div style="width:100%;max-width:320px;margin-top:10px"><button class="btn ghost" id="duelCl" style="visibility:hidden" onclick="duelClose()">Fermer</button></div>`;
+    let t=0;
+    const el=document.getElementById('duelDice');
+    const int=setInterval(()=>{
+      el.textContent=`${a} : ${1+Math.floor(Math.random()*6)}  ·  ${b} : ${1+Math.floor(Math.random()*6)}`;
+      snd('tap'); t++;
+      if(t>10){
+        clearInterval(int);
+        let va,vb; do{va=1+Math.floor(Math.random()*6);vb=1+Math.floor(Math.random()*6);}while(va===vb);
+        el.textContent=`${a} : ${va}  ·  ${b} : ${vb}`;
+        const w=va>vb?a:b, l=va>vb?b:a;
+        document.getElementById('duelRes').innerHTML=`${av(w)} ${w} l'emporte !<br>${av(l)} ${l} : <b style="color:var(--coral)">${sanction()}</b>`;
+        snd('win'); vib([50,40,90]); showRoast('fail',l);
+        document.getElementById('duelCl').style.visibility='visible';
+      }
+    },140);
+  }else{
+    const txt=k==='chifoumi'
+      ? `Chifoumi au meilleur des 3, maintenant, les yeux dans les yeux. Le perdant : <b style="color:var(--coral)">${sanction()}</b>.`
+      : `Concours de regard, tout de suite. Le premier qui rit ou cligne : <b style="color:var(--coral)">${sanction()}</b>.`;
+    o.innerHTML=T+`<div style="color:var(--ink);font-size:15px;font-weight:700;margin-bottom:12px;text-align:center">${av(a)} ${a} <span style="color:var(--coral)">VS</span> ${av(b)} ${b}</div>
+      <div style="color:var(--ink);font-size:14px;text-align:center;line-height:1.7;max-width:320px">${txt}</div>
+      <div style="width:100%;max-width:320px;margin-top:20px"><button class="btn" onclick="duelClose()">DUEL TERMINÉ</button></div>`;
+    snd('deal');
+  }
+}
+
+/* ----- Le Dé Maudit : lancer 3D ----- */
+function diceRoll(){
+  const c=deck[idx]; if(c._rolling)return; c._rolling=true;
+  const btn=document.getElementById('diceGo'); if(btn){btn.disabled=true;btn.textContent='ÇA ROULE…';}
+  const v=1+Math.floor(Math.random()*6);
+  const rot={1:[0,0],2:[0,-90],3:[0,180],4:[0,90],5:[-90,0],6:[90,0]}[v];
+  const d=document.getElementById('dice3d');
+  d.style.setProperty('--ex',(rot[0]+1440)+'deg');
+  d.style.setProperty('--ey',(rot[1]+1080)+'deg');
+  d.classList.add('roll'); snd('reveal'); vib(40);
+  setTimeout(()=>{
+    // verrouille la face gagnante bien de face, sans dépendre de l'animation
+    d.classList.remove('roll');
+    d.style.transform=`rotateX(${rot[0]}deg) rotateY(${rot[1]}deg)`;
+    c._rolls[c._seq[c._i]]=v; c._rolling=false;
+    const msg=document.getElementById('diceMsg');
+    if(msg)msg.innerHTML=`${av(c._seq[c._i])} ${c._seq[c._i]} fait <b style="color:var(--acid);font-size:18px">${v}</b> !`;
+    snd(v===6?'win':'tap'); vib(30);
+    if(btn){btn.disabled=false;btn.classList.remove('coral');btn.textContent=(c._i+1<c._seq.length)?'JOUEUR SUIVANT →':'VERDICT →';btn.onclick=diceNext;}
+  },2250);
+}
+function diceNext(){deck[idx]._i++;renderCard();}
+function diceTie(){
+  const c=deck[idx];
+  const entries=Object.entries(c._rolls);
+  const min=Math.min(...entries.map(e=>e[1]));
+  c._seq=entries.filter(e=>e[1]===min).map(e=>e[0]);
+  c._i=0; c._rolls={};
+  snd('tap'); renderCard();
+}
+
+/* ----- Paranoïa : pile ou face animé ----- */
+function paranoFlip(){
+  const pile=Math.random()<0.5;
+  const card=document.getElementById('gcard');
+  card.innerHTML=`<span class="badge" style="--mode-c:#fbbf24">🪙 PARANOÏA</span>
+    <div class="prompt" style="text-align:center;margin-bottom:0;font-size:16px">La pièce décide…</div>
+    <div class="flipwrap go"><div class="coin flip" style="--endrot:${pile?'3240deg':'3420deg'}"><div class="cedge" style="transform:translateZ(2.5px)"></div><div class="cedge"></div><div class="cedge" style="transform:translateZ(-2.5px)"></div><div class="cface front">PILE</div><div class="cface back">FACE</div></div><div class="cshadow"></div></div>
+    <div id="coinRes" style="text-align:center;font-size:14px;min-height:64px;line-height:1.6"></div>
+    <div class="cardbtns"><button class="btn" id="coinNext" style="visibility:hidden" onclick="next()">SUIVANT →</button></div>`;
+  snd('reveal'); vib(20);
+  setTimeout(()=>{
+    const r=document.getElementById('coinRes');
+    if(r) r.innerHTML=pile
+      ? `<b style="font-family:'Unbounded';font-size:24px;color:var(--coral)">PILE !</b><br>Tu es OBLIGÉ(E) de révéler la question à tout le monde. Bon courage…`
+      : `<b style="font-family:'Unbounded';font-size:24px;color:var(--acid)">FACE !</b><br>La question reste secrète à jamais. Le mystère demeure…`;
+    snd(pile?'fail':'win'); vib(pile?[80,50,150]:[30,40,30]);
+    const b=document.getElementById('coinNext'); if(b)b.style.visibility='visible';
+  },2700);
+}
+
+/* ----- Canari : TOP surprise ----- */
+function canariArm(){
+  const btn=document.getElementById('canGo');
+  if(btn){btn.textContent="ÇA CHANTE… RESTEZ CONCENTRÉS !";btn.disabled=true;}
+  const delay=9000+Math.random()*21000; // TOP entre 9 et 30 secondes
+  bombTimeout=setTimeout(()=>{
+    snd('boom'); vib([120,60,300]);
+    document.body.classList.add('boom');
+    setTimeout(()=>document.body.classList.remove('boom'),600);
+    const card=document.getElementById('gcard');
+    card.innerHTML=`<span class="badge" style="--mode-c:#fde047">🐤 CANARI</span>
+      <div class="prompt" style="text-align:center"><b style="color:var(--coral);font-size:32px">TOP !</b><br>
+      Celui dont c'était le tour dit <b style="color:var(--acid)">un nom d'animal</b>, MAINTENANT !
+      <span class="rl">Sans bégayer, et sans répéter un animal déjà dit ce soir.<br>
+      Réussi : il distribue <b style="color:var(--acid)">autant de ${alcohol?'gorgées':'squats'} que de syllabes</b> de l'animal (3 max — « ornithorynque » plafonne !).<br>
+      Raté ou trop lent : <b style="color:var(--coral)">${sanction()}</b>.</span></div>
+      <div class="cardbtns"><button class="btn" onclick="next()">SUIVANT →</button></div>`;
+  },delay);
+}
+
+/* ----- Undercover : distribution -> débat -> révélation ----- */
+function renderUndercover(c,card,badgeHtml){
+  if(!c._roles){
+    const order=shuffle(players.map(x=>x.n));
+    c._roles={}; order.forEach(n=>c._roles[n]='civil');
+    c._roles[order[0]]='under';
+    if(order.length>=5) c._roles[order[1]]='white';
+    c._seq=shuffle([...order]); c._i=0; c._phase='reveal';
+  }
+  let inner='';
+  if(c._phase==='reveal'){
+    const who=c._seq[c._i];
+    const role=c._roles[who];
+    const word=role==='civil'?c.pair[0]:role==='under'?c.pair[1]:'TU ES MISTER WHITE — aucun mot ! Bluffe.';
+    inner=`<div class="reveal">
+      <p style="font-size:14px;color:var(--ink)">Téléphone à ${pspan(who)} <b>(${c._i+1}/${c._seq.length})</b>.<br>Toi seul(e) regardes ton mot secret :</p>
+      <div class="hidden-word" onclick="this.classList.toggle('show')">${word}</div>
+      <p>(touche pour révéler / cacher — puis cache avant de passer !)</p>
+    </div>
+    <div class="cardbtns"><button class="btn cyan" onclick="ucNext()">${c._i+1<c._seq.length?'JOUEUR SUIVANT →':'TOUT LE MONDE A SON MOT'}</button></div>`;
+  }else if(c._phase==='debate'){
+    inner=`<div class="prompt">Chacun décrit son mot <b>sans le dire</b>, en un mot ou une phrase, à tour de rôle.
+      <span class="rl">Il y a <b>1 imposteur</b> (mot différent)${c._seq.length>=5?' et peut-être <b>Mister White</b> (aucun mot)':''}. Après 2 tours de table, débattez puis votez pour éliminer le suspect !</span></div>
+      <div class="cardbtns"><button class="btn coral" onclick="ucReveal()">RÉVÉLER LES RÔLES</button></div>`;
+  }else{
+    const under=Object.keys(c._roles).find(n=>c._roles[n]==='under');
+    const white=Object.keys(c._roles).find(n=>c._roles[n]==='white');
+    inner=`<div class="prompt">L'imposteur était ${pspan(under)} !${white?`<br>Mister White : ${pspan(white)} !`:''}
+      <span class="rl">Imposteur démasqué au vote → il/elle : <b style="color:var(--coral)">${sanction()}</b>.<br>Imposteur non démasqué → tous les autres : <b style="color:var(--coral)">${sanction()}</b>.${white?'<br>Mister White devine le mot des civils → il ne subit rien !':''}</span></div>
+      <div class="cardbtns"><button class="btn" onclick="next()">SUIVANT →</button></div>`;
+  }
+  card.innerHTML=badgeHtml+inner;
+}
+function ucNext(){
+  const c=deck[idx]; c._i++;
+  if(c._i>=c._seq.length) c._phase='debate';
+  snd('tap');
+  renderCard();
+}
+function ucReveal(){
+  const c=deck[idx]; c._phase='result';
+  snd('reveal'); vib(80);
+  renderCard();
+}
+
+/* ----- Qui a dit ça ? : saisie anonyme -> liste mélangée ----- */
+function esc(x){return x.replace(/[<>&]/g,ch=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[ch]))}
+function renderQuidit(c,card,badgeHtml){
+  if(!c._seq){c._seq=shuffle(players.map(x=>x.n));c._i=0;c._ans=[];c._phase='input';}
+  let inner='';
+  if(c._phase==='input'){
+    const who=c._seq[c._i];
+    inner=`<div class="prompt" style="font-size:17px">${c.q}
+      <span class="rl">Téléphone à <b style="color:var(--acid)">${av(who)} ${who}</b> (${c._i+1}/${c._seq.length}) — tape ta réponse en secret, puis valide :</span></div>
+      <input type="text" id="qdin" maxlength="60" placeholder="Ta réponse secrète…" style="margin-top:6px" onkeydown="if(event.key==='Enter')qdNext()">
+      <div class="cardbtns"><button class="btn cyan" onclick="qdNext()">VALIDER →</button></div>`;
+  }else{
+    const list=c._shuffled.map((a,i)=>`<div style="background:#2c1a3c;border-radius:12px;padding:10px 12px;margin:6px 0;font-size:14px"><b style="color:var(--acid)">${i+1}.</b> ${a}</div>`).join('');
+    inner=`<div class="prompt" style="font-size:16px;margin:12px 0 0">${c.q}</div>
+      <div style="overflow-y:auto;margin-top:6px;max-height:38vh">${list}</div>
+      <div class="prompt" style="font-family:'Sora';font-size:12.5px;color:var(--dim);margin:10px 0 0;font-weight:400">Pour chaque réponse, le groupe vote pour deviner son auteur. Chaque auteur démasqué : <b style="color:var(--coral)">${sanction()}</b>.</div>
+      <div class="cardbtns"><button class="btn" onclick="next()">SUIVANT →</button></div>`;
+  }
+  card.innerHTML=badgeHtml+inner;
+}
+function ansPick(i){
+  const c=deck[idx]; if(c._done)return; c._done=true;
+  c._opts.forEach((o,j)=>{
+    const b=document.getElementById('ob'+j); if(!b)return;
+    b.disabled=true;
+    if(o===c._correct){b.classList.add('good')}
+    else if(j===i){b.classList.add('bad')}
+    else{b.style.opacity=.35}
+  });
+  const ok=c._opts[i]===c._correct;
+  snd(ok?'win':'fail'); vib(ok?[30,40,30]:120);
+  const v=document.getElementById('verdict');
+  if(v) v.innerHTML= ok
+    ? `Ceux qui avaient la bonne réponse <b style="color:var(--acid)">${alcohol?'distribuent 2 gorgées':'donnent un gage'}</b> à qui ils veulent. Les autres : <b style="color:var(--coral)">${sanction()}</b>.`
+    : `La bonne réponse était <b style="color:var(--acid)">${c._correct}</b> ! Ceux qui s'étaient trompés : <b style="color:var(--coral)">${sanction()}</b>. Les autres distribuent.`;
+}
+
+/* ----- Roulette du Destin : payante, limitée, avec retour de flamme ----- */
+function openRoulette(){
+  const o=document.getElementById('roul');
+  o.style.display='flex';
+  if(roulUses<=0){
+    o.innerHTML=`<div style="font-family:'Unbounded';font-size:13px;letter-spacing:.15em;color:var(--dim);margin-bottom:18px">LA ROULETTE DU DESTIN</div>
+      <div class="roulname">—</div>
+      <div style="color:var(--dim);font-size:14px;text-align:center;margin-top:10px;line-height:1.6">Plus de lancers pour cette partie !<br>La roulette se recharge à la prochaine.</div>
+      <div style="width:100%;max-width:320px;margin-top:22px"><button class="btn ghost" onclick="document.getElementById('roul').style.display='none'">Fermer</button></div>`;
+    return;
+  }
+  const chips=players.map(x=>`<button class="optbtn" style="font-size:12px" onclick="spinRoulette('${x.n.replace(/'/g,"\\'")}')">${x.e} ${x.n}</button>`).join('');
+  o.innerHTML=`<div style="font-family:'Unbounded';font-size:13px;letter-spacing:.15em;color:var(--dim);margin-bottom:14px">LA ROULETTE DU DESTIN</div>
+    <div style="color:var(--ink);font-size:13px;text-align:center;line-height:1.6;max-width:320px">Qui ose lancer ? Prix d'entrée : <b style="color:var(--coral)">${alcohol?'1 gorgée':'5 squats'}</b> d'office pour le lanceur.<br>Et si le sort désigne le lanceur lui-même… <b style="color:var(--coral)">sanction ×2</b>.</div>
+    <div class="optgrid" style="width:100%;max-width:340px;margin-top:16px">${chips}</div>
+    <div style="color:var(--dim);font-size:11px;margin-top:14px">${roulUses} lancer${roulUses>1?'s':''} restant${roulUses>1?'s':''} cette partie</div>
+    <div style="width:100%;max-width:320px;margin-top:16px"><button class="btn ghost" onclick="document.getElementById('roul').style.display='none'">Fermer</button></div>`;
+}
+function spinRoulette(launcher){
+  roulUses--;
+  const o=document.getElementById('roul');
+  o.innerHTML=`<div style="font-family:'Unbounded';font-size:13px;letter-spacing:.15em;color:var(--dim);margin-bottom:18px">LA ROULETTE DU DESTIN</div>
+    <div class="roulname" id="roulName">?</div>
+    <div id="roulRes" style="color:var(--dim);font-size:14px;min-height:52px;text-align:center;margin-top:12px;line-height:1.6"></div>
+    <div style="width:100%;max-width:320px;margin-top:22px">
+      <button class="btn ghost" id="roulClose" style="display:none" onclick="document.getElementById('roul').style.display='none'">Fermer</button>
+    </div>`;
+  const names=players.map(x=>x.n);
+  const el=document.getElementById('roulName'),res=document.getElementById('roulRes');
+  const winner=names[Math.floor(Math.random()*names.length)];
+  let i=0,delay=55;
+  (function step(){
+    el.textContent=av(names[i%names.length])+' '+names[i%names.length];
+    snd('tap'); vib(8); i++; delay*=1.12;
+    if(delay<450){setTimeout(step,delay)}
+    else{
+      el.textContent=av(winner)+' '+winner;
+      snd('reveal'); vib([60,40,140]);
+      const dbl=winner===launcher;
+      res.innerHTML=dbl
+        ? `<b style="color:var(--coral)">RETOUR DE FLAMME !</b> ${launcher} s'est désigné lui-même :<br><b style="color:var(--coral)">${sanction()} — ×2</b> !`
+        : `Le sort a parlé : <b style="color:var(--coral)">${sanction()}</b> !<br><span style="font-size:12px">(et ${launcher} paie son entrée, comme convenu)</span>`;
+      const cl=document.getElementById('roulClose'); if(cl)cl.style.display='block';
+    }
+  })();
+}
+
+function btReroll(){
+  const c=deck[idx];
+  const pool=DECK_SRC.filter(x=>x.m==='blindtest'&&x.song!==c.song);
+  const n=pool[Math.floor(Math.random()*pool.length)];
+  c.song=n.song; c.timer=n.timer;
+  snd('tap'); renderCard();
+}
+
+function qdNext(){
+  const c=deck[idx];
+  const v=(document.getElementById('qdin')||{value:''}).value;
+  c._ans.push(esc(v.trim())||'(réponse vide)');
+  c._i++;
+  if(c._i>=c._seq.length){c._phase='list';c._shuffled=shuffle([...c._ans]);}
+  snd('tap'); renderCard();
+}
+
+function sanctionShort(){return alcohol?'gorgées !':'gage !'}
+function startTimer(sec){
+  let t=sec;
+  timerInt=setInterval(()=>{
+    t--; const el=document.getElementById('tmr');
+    if(!el){clearInterval(timerInt);return}
+    el.textContent=t;
+    if(t<=5){el.classList.add('hot');snd('tick')}
+    if(t<=0){clearInterval(timerInt); el.textContent="⏰ FINI !";snd('fail');vib(200)}
+  },1000);
+}
+
+/* ----- commentaires bien sentis, calibrés selon l'intensité ----- */
+const ROASTS={
+  1:{fail:["Aïe {n}… même ta grand-mère aurait tenté le coup.","{n} déclare forfait. On note. On ne juge pas. (Si, un peu.)","Courage {n}, c'est le geste qui compte. Enfin là, c'est surtout raté.","Petite forme ce soir, {n} ?","{n} a choisi la voie de la sagesse. Ou de la flemme. Santé !"],
+     win:["Pas mal {n} ! On t'avait clairement sous-estimé.","{n} assure. Qui l'eût cru ?","Joli, {n}. Presque impressionnant.","{n} valide, tranquillement. La classe discrète."]},
+  2:{fail:["{n} vient de se rétamer devant tout le monde. Santé !","Bois, {n}, ça noiera la honte. Enfin… une partie.","{n}, ta réputation vient de prendre une gorgée elle aussi.","On a tous vu ça, {n}. TOUS. Et on s'en souviendra.","{n} confirme ce soir : le talent, c'est pas automatique."],
+     win:["{n} gère ! Bon, la barre était basse, mais quand même.","Victoire de {n} ! Quelqu'un note la date ?","{n} réussit un truc. Vite, une capture d'écran.","Propre, {n}. Presque louche."]},
+  3:{fail:["{n}, c'était gênant même pour nous. Bois et fais-toi oublier.","Historiquement nul, {n}. Les archives s'en souviendront.","{n} vient d'inventer une nouvelle façon d'échouer. Bravo, dans un sens.","{n}, ton équipe aimerait rester anonyme. On la comprend.","La honte se boit gorgée par gorgée, {n}. À la tienne.","Même la roulette a pitié de toi, {n}. C'est dire."],
+     win:["{n} gagne ?! Vérifiez les caméras, c'est pas normal.","Incroyable : {n} a réussi. Le niveau général était bas, certes, mais quand même.","{n} s'en sort. Profites-en, statistiquement ça ne se reproduira pas.","Chapeau, {n}. On retire (presque) tout ce qu'on a dit sur toi."]}
+};
+function showRoast(kind,n){
+  const pool=ROASTS[intensity][kind];
+  const d=document.createElement('div');
+  d.className='roast'+(kind==='win'?' winr':'');
+  d.textContent=pool[Math.floor(Math.random()*pool.length)].replace(/{n}/g,n);
+  document.getElementById('app').appendChild(d);
+  setTimeout(()=>d.classList.add('out'),2100);
+  setTimeout(()=>d.remove(),2500);
+}
+
+function win(p){stats.done[p]=(stats.done[p]||0)+1;snd('win');showRoast('win',p);next()}
+function fail(p){stats.sanctions[p]=(stats.sanctions[p]||0)+1;snd('fail');showRoast('fail',p);next()}
+function next(){
+  if(multLeft>0&&deck[idx]&&deck[idx].m!=='event')multLeft--;
+  idx++;renderCard();
+}
+function updateHud(){
+  document.getElementById('cnt').textContent=`${idx+1}/${deck.length}`;
+  document.getElementById('barfill').style.width=((idx+1)/deck.length*100)+'%';
+  const gc=document.getElementById('gcard');
+  if(gc&&!gc.querySelector('.cardDice')){
+    const b=document.createElement('button');
+    b.className='cardDice'; b.textContent='🎲'; b.onclick=openRoulette;
+    gc.appendChild(b);
+    const d2=document.createElement('button');
+    d2.className='cardDice duelBtn'; d2.textContent='⚔️'; d2.onclick=openDuel;
+    gc.appendChild(d2);
+  }
+}
+
+/* ---------- fin ---------- */
+function topOf(obj){
+  let best=null,v=-1;
+  for(const k in obj){if(obj[k]>v){v=obj[k];best=k}}
+  return v>0?`${av(best)} ${best} (${v})`:'—';
+}
+function endGame(){
+  clearInterval(timerInt); clearTimeout(bombTimeout);
+  snd('end');
+  const rows=players.map(x=>`<div class="stat" style="padding:10px 14px"><span class="ic">${x.e}</span><div style="flex:1"><div class="vl" style="font-size:13px">${x.n}</div><div class="lb">💪 ${stats.done[x.n]||0} défis relevés · 😈 ${stats.sanctions[x.n]||0} sanctions subies · 🎯 ciblé ${stats.targeted[x.n]||0} fois</div></div></div>`).join('');
+  document.getElementById('stats').innerHTML=`
+    <div class="stat"><span class="ic">🎯</span><div><div class="lb">Star de la soirée (le plus ciblé)</div><div class="vl">${topOf(stats.targeted)}</div></div></div>
+    <div class="stat"><span class="ic">💪</span><div><div class="lb">Machine à défis (le plus de défis relevés)</div><div class="vl">${topOf(stats.done)}</div></div></div>
+    <div class="stat"><span class="ic">😈</span><div><div class="lb">Aimant à sanctions</div><div class="vl">${topOf(stats.sanctions)}</div></div></div>
+    <div style="font-family:'Unbounded';font-size:11px;letter-spacing:.1em;color:var(--dim);margin:18px 0 4px;text-align:left">RÉCAP PAR JOUEUR</div>${rows}`;
+  go('end');
+}
+function replay(){
+  buildDeck();idx=0;roulUses=3;multLeft=0;
+  if(teamCount>1) deck.unshift({m:'teams'});
+  stats={targeted:{},sanctions:{},done:{}};
+  players.forEach(p=>{stats.targeted[p.n]=0;stats.sanctions[p.n]=0;stats.done[p.n]=0});
+  go('game');renderCard();
+}
+</script>
+</body>
+</html>
