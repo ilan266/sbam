@@ -226,6 +226,11 @@ input[type=text]:focus{border-color:var(--acid)}
 .cardDice{position:absolute;top:14px;right:14px;background:#31204a;border:1px solid #4a2f66;border-radius:12px;font-size:19px;padding:7px 10px;cursor:pointer;z-index:3;transition:.12s}
 .cardDice:active{transform:scale(.9)}
 .cardDice.duelBtn{right:62px}
+.cardDice.fingerBtn{right:110px}
+#sipbar{display:flex;gap:6px;justify-content:center;align-items:center;flex-wrap:wrap;padding:8px 4px 2px}
+.sipchip{background:#221130;border:1px solid #3a2450;border-radius:99px;padding:6px 10px;font-size:16px;display:flex;align-items:center;gap:5px;cursor:pointer;transition:.1s}
+.sipchip span{font-family:'Sora';font-weight:800;font-size:12px;color:var(--acid)}
+.sipchip:active{transform:scale(.9)}
 .roast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);max-width:86%;background:#2b1220;border:1.5px solid var(--coral);color:#ffd6de;font-size:13.5px;font-weight:600;padding:12px 16px;border-radius:16px;z-index:60;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.5);animation:roastin .3s cubic-bezier(.2,.9,.3,1.3)}
 .roast.winr{border-color:var(--acid);color:#f2ffd0;background:#232b10}
 @keyframes roastin{from{opacity:0;transform:translateX(-50%) translateY(16px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
@@ -245,6 +250,12 @@ input[type=text]:focus{border-color:var(--acid)}
 .pyr .pc .tl{font-size:8.5px}
 .pyr .pc .br{display:none}
 .pyrrow{display:flex;gap:5px;justify-content:center;margin:4px 0}
+.gcard{overflow-y:auto;-webkit-overflow-scrolling:touch}
+.pc.ref{outline:3px solid var(--acid);box-shadow:0 0 18px rgba(232,255,71,.55)}
+.pc.back.cur::after{content:"?";color:var(--acid);font-size:28px;transform:rotate(0deg)}
+.botch{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:80;pointer-events:none;background:rgba(211,40,60,.16)}
+.botch span{font-family:'Unbounded';font-weight:900;font-size:clamp(32px,10.5vw,60px);color:#ff4d6d;text-shadow:0 0 30px rgba(255,77,109,.85),4px 4px 0 #5c0b16;transform:rotate(-8deg);animation:botchin .55s cubic-bezier(.2,1.6,.3,1)}
+@keyframes botchin{0%{transform:rotate(-8deg) scale(3);opacity:0}60%{transform:rotate(-8deg) scale(.95);opacity:1}80%{transform:rotate(-6deg) scale(1.06)}100%{transform:rotate(-8deg) scale(1)}}
 .pc.toll{background:repeating-linear-gradient(135deg,#d3283c 0 7px,#f3e9d8 7px 14px);flex-direction:column;gap:3px}
 .pc.toll .tollx{font-size:20px;filter:drop-shadow(0 1px 2px rgba(0,0,0,.4))}
 .pc.toll .tolltxt{font-family:'Unbounded';font-size:7.5px;font-weight:900;color:#5c0b16;background:rgba(255,255,255,.9);padding:1px 5px;border-radius:4px;letter-spacing:.05em}
@@ -287,8 +298,8 @@ input[type=text]:focus{border-color:var(--acid)}
       <h1 class="logo">SBAM!</h1>
       <p class="tag">Le jeu de soirée qui s'adapte à ton groupe.<br>Avec ou sans alcool. Toujours avec chaos.</p>
       <div class="hbadges">
-        <span class="hbadge hot">36 JEUX</span>
-        <span class="hbadge">650+ CARTES</span>
+        <span class="hbadge hot">38 JEUX</span>
+        <span class="hbadge">680+ CARTES</span>
         <span class="hbadge">2 À 12 JOUEURS</span>
         <span class="hbadge">ALCOOL OPTIONNEL</span>
       </div>
@@ -345,6 +356,11 @@ input[type=text]:focus{border-color:var(--acid)}
 
     <div class="seclbl">JEUX <span style="display:flex;gap:14px"><button class="mini" onclick="allGames(true)">Tout</button><button class="mini" style="color:var(--coral)" onclick="allGames(false)">Aucun</button></span></div>
     <p class="hint" style="margin-top:0">Mix total par défaut — ou compose ta partie en touchant les jeux.</p>
+    <div style="display:flex;gap:8px;margin:2px 0 10px">
+      <button class="optbtn" style="flex:1;font-size:11.5px;padding:10px 6px" onclick="applyPack('rapide')">⚡ PACK RAPIDE<br><span style="font-weight:400;font-size:9.5px;color:var(--dim)">rythme non-stop</span></button>
+      <button class="optbtn" style="flex:1;font-size:11.5px;padding:10px 6px" onclick="applyPack('gros')">🎯 GROS JEUX<br><span style="font-weight:400;font-size:9.5px;color:var(--dim)">sessions posées</span></button>
+      <button class="optbtn" style="flex:1;font-size:11.5px;padding:10px 6px" onclick="applyPack('tout')">🔥 TOUT<br><span style="font-weight:400;font-size:9.5px;color:var(--dim)">le grand mix</span></button>
+    </div>
     <div class="ggrid" id="ggrid"></div>
 
     <div id="teamzone"></div>
@@ -390,7 +406,7 @@ input[type=text]:focus{border-color:var(--acid)}
 
   <div id="roul" class="roulover" style="display:none"></div>
 
-  <div class="foot">SBAM! · v2.9 · 36 jeux · 650+ cartes · pyramide positionnelle · jouez responsable</div>
+  <div class="foot">SBAM! · v3.8 · 38 jeux · 680+ cartes · top chrono équilibré · jouez responsable</div>
 </div>
 
 <script>
@@ -438,9 +454,24 @@ const MODES = {
   front:     {label:"SUR LE FRONT",  e:"🤳", c:"#5eead4", glow:"rgba(94,234,212,.16)"},
   loterie:   {label:"LA LOTERIE",    e:"🍀", c:"#86efac", glow:"rgba(134,239,172,.14)"},
   pyramide:  {label:"LA PYRAMIDE",   e:"🃏", c:"#f0d060", glow:"rgba(240,208,96,.16)"},
+  route:     {label:"L'AUTOROUTE",   e:"🛣", c:"#f59e0b", glow:"rgba(245,158,11,.16)"},
+  topchrono: {label:"TOP CHRONO",    e:"⏱", c:"#fb7185", glow:"rgba(251,113,133,.16)"},
 };
 const EMOJIS=["🦁","🐸","🦊","🐼","🐙","🦄","🐯","🐰","🐨","🦖","🐷","🐵","🦉","🐺","🦋","🐳"];
 const FILMS_POOL=["Titanic","Le Roi Lion","Harry Potter à l'école des sorciers","Star Wars","Intouchables","Avatar","Jurassic Park","Les Bronzés font du ski","Le Seigneur des Anneaux","Pirates des Caraïbes","Retour vers le futur","Forrest Gump","Matrix","Gladiator","Le Dîner de Cons","Astérix & Obélix : Mission Cléopâtre","Shrek","Toy Story","Inception","Rocky","Les Dents de la mer","E.T.","Taxi","Bienvenue chez les Ch'tis","Ratatouille","Spider-Man","Fast and Furious","Hunger Games","Twilight","Le Grand Bleu","Léon","Le Fabuleux Destin d'Amélie Poulain","Interstellar","Top Gun","Dirty Dancing","Grease","La Grande Vadrouille","Coco","Batman : The Dark Knight","Pulp Fiction"];
+const RULES={
+ pyramide:"Chacun mémorise 4 cartes ET leurs positions. On retourne la pyramide étage par étage : ceux qui ont la carte annoncée distribuent (bluff permis, contestation possible). Puis épreuve de mémoire, carte du destin… et autoroute pour le désigné !",
+ undercover:"Chacun reçoit un mot secret — mais un imposteur a un mot différent. Chacun décrit son mot en UN mot, puis on vote pour démasquer l'imposteur.",
+ quidit:"Une question s'affiche. Chacun tape sa réponse en secret dans le téléphone. Les réponses sont mélangées puis lues à voix haute… devinez qui a écrit quoi !",
+ killer:"Chacun reçoit une mission secrète à accomplir discrètement pendant la soirée. Mission réussie = récompense. Grillé en pleine action = sanction !",
+ petitbac:"Une lettre, des catégories : 60 secondes pour trouver un mot par catégorie. Les réponses en double s'annulent !",
+ front:"Le joueur colle le téléphone sur son front SANS regarder. Les autres révèlent le mot et le MIMENT. À lui de deviner avant la fin du chrono !",
+ canari:"Chaque joueur reçoit un numéro secret. Au TOP surprise, le dernier à crier son numéro a perdu !",
+ route:"Une rangée de cartes visibles. À chaque pas, on tire une carte de la pioche : PLUS ou MOINS que celle où tu te trouves ? La carte tirée prend sa place sur la route. Erreur = sanction + retour au départ. Les péages se paient cash !",
+ topchrono:"Deux équipes, les MÊMES mots sur 3 manches : d'abord décris librement, puis en UN SEUL mot, enfin en MIME. 30 secondes par équipe, en alternance. L'équipe qui trouve le plus de mots gagne — les perdants trinquent !"
+};
+let seenRules=new Set();
+
 const EVENTS=[
  {e:'⚡',t:"HAPPY HOUR",d:"Pendant les 3 prochaines cartes, toutes les sanctions sont <b style='color:var(--coral)'>DOUBLÉES</b> ! Bonne chance.",fx:'x2'},
  {e:'👑',t:"ROI DU SILENCE",d:"30 secondes de silence TOTAL, à partir de maintenant. Le premier qui parle : {s}."},
@@ -678,6 +709,16 @@ const DECK_SRC = [
 {m:'mime',l:3,t:"",word:"UN KARAOKÉ RATÉ",timer:45},
 {m:'mime',l:3,t:"",word:"UNE GUEULE DE BOIS",timer:45},
 {m:'mime',l:3,t:"",word:"UN SLOW GÊNANT",timer:60},
+{m:'mime',l:1,t:"",word:"UN PINGOUIN",timer:45},
+{m:'mime',l:1,t:"",word:"JOUER DE LA BATTERIE",timer:45},
+{m:'mime',l:1,t:"",word:"PLONGER À LA PISCINE",timer:45},
+{m:'mime',l:1,t:"",word:"UN CHAT QUI CHASSE",timer:45},
+{m:'mime',l:2,t:"",word:"UN SOMNAMBULE",timer:45},
+{m:'mime',l:2,t:"",word:"CHANGER UNE COUCHE",timer:45},
+{m:'mime',l:2,t:"",word:"UN ARBITRE DE FOOT",timer:45},
+{m:'mime',l:2,t:"",word:"UN TOURISTE PERDU",timer:45},
+{m:'mime',l:3,t:"",word:"UN COUP DE SOLEIL ATROCE",timer:45},
+{m:'mime',l:3,t:"",word:"SE FAIRE TATOUER (ET LE REGRETTER)",timer:60},
 
 /* ============ C'EST UN 10 MAIS… (12 manches) ============ */
 {m:'dix',id:'d01',l:1},{m:'dix',id:'d02',l:1},{m:'dix',id:'d03',l:1},{m:'dix',id:'d04',l:1},
@@ -1155,6 +1196,14 @@ const DECK_SRC = [
 {m:'front',l:3,fw:"SIMULER AU LIT",timer:60},
 {m:'front',l:3,fw:"DE LA POLE DANCE",timer:60},
 {m:'front',l:3,fw:"SE RÉVEILLER CHEZ UN(E) INCONNU(E)",timer:60},
+{m:'front',l:1,fw:"COURIR APRÈS LE BUS",timer:60},
+{m:'front',l:1,fw:"UNE DEMANDE D'AUGMENTATION",timer:60},
+{m:'front',l:1,fw:"TRICHER EN EXAMEN",timer:60},
+{m:'front',l:2,fw:"UN RONFLEMENT INSUPPORTABLE",timer:60},
+{m:'front',l:2,fw:"DANSER SUR DU DISCO",timer:60},
+{m:'front',l:2,fw:"SE FAIRE VOLER SON SAC",timer:60},
+{m:'front',l:3,fw:"UNE DOUCHE À DEUX",timer:60},
+{m:'front',l:3,fw:"RENCONTRER LES BEAUX-PARENTS",timer:60},
 
 /* ============ LA LOTERIE (28) ============ */
 {m:'loterie',l:1,t:"Ceux qui portent des claquettes en ce moment…<span class='sx'>{u} !</span>"},
@@ -1189,12 +1238,20 @@ const DECK_SRC = [
 /* ============ LA PYRAMIDE (2 parties) ============ */
 {m:'pyramide',id:'py1',l:1},
 {m:'pyramide',id:'py2',l:2},
+
+/* ============ L'AUTOROUTE SOLO (2) ============ */
+{m:'route',id:'rt1',l:1},
+{m:'route',id:'rt2',l:2},
+
+/* ============ TOP CHRONO (2 parties) ============ */
+{m:'topchrono',id:'tc1',l:1},
+{m:'topchrono',id:'tc2',l:2},
 ];
 
 /* ---------- état ---------- */
 let players=[], intensity=1, deckSize=45, alcohol=false;
 let deck=[], idx=0, timerInt=null, bombTimeout=null;
-let stats={targeted:{},sanctions:{},done:{}};
+let stats={targeted:{},sanctions:{},done:{},sips:{}};
 let usedKeys=new Set();
 let selected=new Set(Object.keys(MODES));
 let roulUses=3;
@@ -1283,6 +1340,14 @@ function toggleGame(k){
   renderGameGrid(); snd('tap');
 }
 function allGames(v){selected=v?new Set(Object.keys(MODES)):new Set();renderGameGrid();snd('tap')}
+function rulesOk(m){seenRules.add(m);snd('add');renderCard();}
+const PACK_GROS=['pyramide','undercover','quidit','killer','petitbac','front','canari','route','topchrono'];
+function applyPack(k){
+  if(k==='tout')selected=new Set(Object.keys(MODES));
+  else if(k==='gros')selected=new Set(PACK_GROS);
+  else selected=new Set(Object.keys(MODES).filter(m=>!PACK_GROS.includes(m)));
+  renderGameGrid();snd('add');
+}
 
 /* ---------- équipes selon le nombre de joueurs ---------- */
 function teamLabel(n,k){
@@ -1396,8 +1461,8 @@ function buildDeck(){
 
 function startGame(){
   alcohol=document.getElementById('alcSw').classList.contains('on');
-  stats={targeted:{},sanctions:{},done:{}};
-  players.forEach(p=>{stats.targeted[p.n]=0;stats.sanctions[p.n]=0;stats.done[p.n]=0});
+  stats={targeted:{},sanctions:{},done:{},sips:{}};
+  players.forEach(p=>{stats.targeted[p.n]=0;stats.sanctions[p.n]=0;stats.done[p.n]=0;stats.sips[p.n]=0});
   buildDeck(); idx=0; roulUses=3; multLeft=0; pendingRoast=null;
   if(teamCount>1) deck.unshift({m:'teams'});
   go('game'); renderCard();
@@ -1463,6 +1528,15 @@ function renderCard(){
       <div class="prompt" style="text-align:center;font-family:'Sora';font-weight:600;font-size:15px;margin:10px 0 auto;line-height:1.6">${d}</div>
       <div class="cardbtns"><button class="btn coral" onclick="next()">C'EST NOTÉ →</button></div>`;
     snd('event'); vib([40,30,40,30,90]); updateHud(); return;
+  }
+  if(RULES[c.m]&&!seenRules.has(c.m)){
+    const modeR=MODES[c.m];
+    const cardR=document.getElementById('gcard');
+    cardR.style.setProperty('--mode-glow',modeR.glow);
+    cardR.innerHTML=`<span class="badge" style="--mode-c:${modeR.c}">${modeR.e} ${modeR.label} — LES RÈGLES</span>
+      <div class="prompt" style="font-family:'Sora';font-weight:600;font-size:15px;line-height:1.65;margin-top:14px">${RULES[c.m]}</div>
+      <div class="cardbtns"><button class="btn" onclick="rulesOk('${c.m}')">C'EST COMPRIS, GO →</button></div>`;
+    snd('deal'); updateHud(); return;
   }
   const mode=MODES[c.m];
   const [p,p2]=pick2();
@@ -1547,6 +1621,24 @@ function renderCard(){
       }
     }
     card.innerHTML=html; updateHud(); return;
+  }
+
+  /* ----- TOP CHRONO ----- */
+  if(c.m==='topchrono'){
+    renderTopChrono(c,card,html); updateHud(); return;
+  }
+
+  /* ----- L'AUTOROUTE (solo) ----- */
+  if(c.m==='route'){
+    if(!c._phase){
+      stats.targeted[p]++;
+      html+=`<div class="who"><span class="wav">${av(p)}</span><span class="wnm">${p}</span></div>
+        <div class="prompt" style="text-align:center;font-size:15px;font-family:'Sora';font-weight:600">${pspan(p)} prend le volant de <b style="color:var(--acid)">L'AUTOROUTE</b> !<br>Combien de péages sur sa route ?</div>
+        <div class="optgrid" style="grid-template-columns:repeat(4,1fr)">${[1,2,3,4].map(n=>`<button class="optbtn" onclick="routeStart(${n})">${n} 🚧</button>`).join('')}</div>
+        <p style="text-align:center;font-size:11.5px;color:var(--dim)">Erreur = ${alcohol?'1 gorgée':'5 squats'} + retour au départ. Zéro erreur = distribue 4 ${alcohol?'gorgées':'gages'} !</p>`;
+      card.innerHTML=html; updateHud(); return;
+    }
+    renderPyramide(c,card,html); updateHud(); return;
   }
 
   /* ----- LA PYRAMIDE ----- */
@@ -1766,6 +1858,142 @@ function armBomb(){
   },delay);
 }
 
+/* ----- Top Chrono : 3 manches, mêmes mots ----- */
+const TU_POOL=["KYLIAN MBAPPÉ","ZINEDINE ZIDANE","CÉLINE DION","NAPOLÉON","JOHNNY HALLYDAY","STROMAE","BEYONCÉ","MICHAEL JACKSON","LOUIS DE FUNÈS","HARRY POTTER","JAMES BOND","SPIDER-MAN","CENDRILLON","TARZAN","DRACULA","LE PÈRE NOËL","CLÉOPÂTRE","ASTÉRIX","SHREK","ROCKY","UNE RACLETTE","UN CROISSANT","LA JOCONDE","UN KANGOUROU","UNE TRONÇONNEUSE","UN TRAMPOLINE","UN ESCARGOT","UN PARAPLUIE","LE MOONWALK","UN SELFIE","UNE LICORNE","UN TOBOGGAN","UNE MOUSTACHE","UNE FONDUE","UN FEU D'ARTIFICE","LA PÉTANQUE","UN EMBOUTEILLAGE","UNE BAGUETTE","LE TOUR DE FRANCE","UN FLAMANT ROSE"];
+const TU_RULES=["Décris librement, sans dire le mot ni sa famille !","UN SEUL mot autorisé. Choisis-le bien…","Mime uniquement. Pas un son !"];
+function renderTopChrono(c,card,badgeHtml){
+  if(!c._ph){
+    const names=shuffle(players.map(x=>x.n));
+    const half=Math.ceil(names.length/2);
+    c._tA=names.slice(0,half); c._tB=names.slice(half);
+    c._words=shuffle([...TU_POOL]).slice(0,12);
+    c._m=1; c._scores=[0,0]; c._turn=0;
+    c._rem=shuffle([...c._words]);
+    c._ph='intro';
+  }
+  const teamName=t=>t===0?`<b style="color:#ff4d6d">ÉQUIPE ROUGE</b>`:`<b style="color:#4de3ff">ÉQUIPE BLEUE</b>`;
+  let inner='';
+  if(c._ph==='intro'){
+    inner=`<div class="prompt" style="text-align:center;font-size:16px;margin-top:6px">MANCHE ${c._m}/3<br><span style="font-family:'Sora';font-size:13.5px;color:var(--ink);font-weight:600">${TU_RULES[c._m-1]}</span></div>
+      <div style="background:#2c1a3c;border-radius:14px;padding:9px 12px;margin:8px 0 6px;font-size:12.5px"><b style="color:#ff4d6d">ROUGE</b> : ${c._tA.map(n=>av(n)+' '+n).join(' · ')}</div>
+      <div style="background:#2c1a3c;border-radius:14px;padding:9px 12px;margin:0 0 8px;font-size:12.5px"><b style="color:#4de3ff">BLEUE</b> : ${c._tB.map(n=>av(n)+' '+n).join(' · ')}</div>
+      <div style="text-align:center;font-size:13px;line-height:1.6"><b>${c._words.length} mots</b> à faire deviner — les mêmes sur les 3 manches, mémorisez-les ! Les tours de 30 s alternent jusqu'à épuiser les mots. C'est ${teamName(c._turn)} qui ouvre : un orateur prend le téléphone.</div>
+      <div class="cardbtns"><button class="btn ${c._turn===0?'coral':'cyan'}" onclick="tuGo()">GO — 30 SECONDES !</button></div>`;
+  }else if(c._ph==='play'){
+    inner=`<div style="text-align:center;font-family:'Unbounded';font-size:10.5px;letter-spacing:.1em;color:var(--dim);margin-top:4px">MANCHE ${c._m} · ${teamName(c._turn)} · RESTE ${c._rem.length} MOT${c._rem.length>1?'S':''}</div>
+      <div class="timerwrap" style="margin:4px 0"><span class="timer" id="tmr">${c._t}</span></div>
+      <div class="prompt" style="text-align:center;font-size:clamp(20px,6.5vw,28px);font-family:'Unbounded';font-weight:900;color:var(--acid);min-height:70px;display:flex;align-items:center;justify-content:center">${c._rem[0]}</div>
+      <div style="text-align:center;font-size:11.5px;color:var(--dim)">Score : ROUGE ${c._scores[0]} · BLEUE ${c._scores[1]}</div>
+      <div class="cardbtns">
+        <button class="btn ghost" onclick="tuPass()">PASSE</button>
+        <button class="btn" onclick="tuFound()">TROUVÉ ✓</button>
+      </div>`;
+  }else if(c._ph==='switch'){
+    inner=`<div class="prompt" style="text-align:center;font-size:18px;margin-top:20px">⏱ TEMPS ÉCOULÉ !</div>
+      <div style="text-align:center;font-size:13.5px;line-height:1.7">Le téléphone passe à ${teamName(1-c._turn)}.<br>Reste <b>${c._rem.length}</b> mot${c._rem.length>1?'s':''} · Score : ROUGE ${c._scores[0]} · BLEUE ${c._scores[1]}</div>
+      <div class="cardbtns"><button class="btn ${(1-c._turn)===0?'coral':'cyan'}" onclick="tuNextTeam()">À NOUS — GO !</button></div>`;
+  }else if(c._ph==='mend'){
+    inner=`<div class="prompt" style="text-align:center;font-size:17px;margin-top:16px">MANCHE ${c._m} TERMINÉE !</div>
+      <div style="text-align:center;font-size:14px;line-height:1.8">Score : <b style="color:#ff4d6d">ROUGE ${c._scores[0]}</b> · <b style="color:#4de3ff">BLEUE ${c._scores[1]}</b>${c._m<3?`<br>Manche ${c._m+1} : mêmes mots, mais ${c._m+1===2?'UN SEUL mot autorisé !':'en MIME uniquement !'}`:''}</div>
+      <div class="cardbtns"><button class="btn" onclick="tuNextManche()">${c._m<3?'MANCHE SUIVANTE →':'VERDICT FINAL →'}</button></div>`;
+  }else{
+    const win=c._scores[0]===c._scores[1]?-1:(c._scores[0]>c._scores[1]?0:1);
+    inner=`<div class="prompt" style="text-align:center;font-size:16px;margin-top:14px">🏁 SCORE FINAL<br><span style="font-size:22px"><b style="color:#ff4d6d">ROUGE ${c._scores[0]}</b> — <b style="color:#4de3ff">BLEUE ${c._scores[1]}</b></span></div>
+      <div style="text-align:center;font-size:14px;line-height:1.7">${win===-1?`Égalité parfaite ! Tout le monde trinque : ${alcohol?'1 gorgée chacun':'3 squats chacun'}.`:`${teamName(win)} l'emporte ! L'équipe perdante : <b style="color:var(--coral)">${alcohol?'2 gorgées chacun':'5 squats chacun'}</b>.`}</div>
+      <div class="cardbtns"><button class="btn" onclick="next()">SUIVANT →</button></div>
+      <button class="btn ghost" style="margin-top:8px;padding:9px;font-size:12px" onclick="tuRestart()">🔁 REJOUER (nouveaux mots)</button>`;
+  }
+  card.innerHTML=badgeHtml+inner;
+  if(c._ph==='play')tuTick();
+}
+function tuGo(){const c=deck[idx];c._ph='play';c._t=30;snd('reveal');renderCard();}
+function tuTick(){
+  clearInterval(timerInt);
+  timerInt=setInterval(()=>{
+    const c=deck[idx];
+    if(!c||c._ph!=='play'){clearInterval(timerInt);return;}
+    c._t--;
+    const el=document.getElementById('tmr');
+    if(el)el.textContent=c._t;
+    if(c._t<=3&&c._t>0)snd('tap');
+    if(c._t<=0){clearInterval(timerInt);c._ph='switch';snd('fail');vib(150);renderCard();}
+  },1000);
+}
+function tuFound(){
+  const c=deck[idx];
+  c._scores[c._turn]++; c._rem.shift();
+  snd('win'); vib(20);
+  if(!c._rem.length){clearInterval(timerInt);c._ph='mend';snd('end');}
+  renderCard();
+}
+function tuPass(){const c=deck[idx];if(c._rem.length>1)c._rem.push(c._rem.shift());snd('tap');renderCard();}
+function tuNextTeam(){const c=deck[idx];c._turn=1-c._turn;c._ph='play';c._t=30;snd('reveal');renderCard();}
+function tuNextManche(){
+  const c=deck[idx];
+  if(c._m<3){c._m++;c._rem=shuffle([...c._words]);c._turn=1-c._turn;c._ph='intro';snd('add');}
+  else{c._ph='fin';snd('end');}
+  renderCard();
+}
+function tuRestart(){const c=deck[idx];['_ph','_tA','_tB','_words','_m','_scores','_turn','_rem','_t'].forEach(k=>delete c[k]);snd('add');renderCard();}
+
+/* ----- Le Doigt du Destin : sélecteur multi-touch ----- */
+let fingerTouches={},fingerTimer=null,fingerArmed=false;
+function openFinger(){
+  const o=document.getElementById('roul'); o.style.display='flex';
+  o.innerHTML=`<div style="font-family:'Unbounded';font-size:13px;letter-spacing:.15em;color:var(--dim);margin-bottom:10px">👆 LE DOIGT DU DESTIN</div>
+    <div id="fingerZone" style="position:relative;width:100%;max-width:420px;flex:1;min-height:320px;border:2px dashed #4a2f66;border-radius:20px;touch-action:none;overflow:hidden"></div>
+    <div id="fingerMsg" style="color:var(--ink);font-size:13px;margin:10px 0;text-align:center;min-height:36px">Posez tous un doigt dans la zone (2 minimum)…<br>tirage automatique dans 3 secondes !</div>
+    <div style="width:100%;max-width:320px"><button class="btn ghost" onclick="fingerClose()">Fermer</button></div>`;
+  fingerTouches={}; fingerArmed=false;
+  const z=document.getElementById('fingerZone');
+  const upd=e=>{
+    e.preventDefault();
+    for(const t of e.changedTouches){
+      if(e.type==='touchend'||e.type==='touchcancel')delete fingerTouches[t.identifier];
+      else fingerTouches[t.identifier]={x:t.clientX,y:t.clientY};
+    }
+    drawFingers(z);
+    if(Object.keys(fingerTouches).length>=2&&!fingerArmed){fingerArmed=true;fingerCountdown(z);}
+  };
+  ['touchstart','touchmove','touchend','touchcancel'].forEach(ev=>z.addEventListener(ev,upd,{passive:false}));
+}
+function drawFingers(z){
+  const r=z.getBoundingClientRect();
+  z.querySelectorAll('.fdot').forEach(d=>d.remove());
+  Object.entries(fingerTouches).forEach(([id,t])=>{
+    const d=document.createElement('div');
+    d.className='fdot'; d.dataset.fid=id;
+    d.style.cssText=`position:absolute;left:${t.x-r.left-30}px;top:${t.y-r.top-30}px;width:60px;height:60px;border-radius:50%;border:4px solid var(--cyan);background:rgba(77,227,255,.15);pointer-events:none`;
+    z.appendChild(d);
+  });
+}
+function fingerCountdown(z){
+  let n=3;
+  clearInterval(fingerTimer);
+  fingerTimer=setInterval(()=>{
+    const msg=document.getElementById('fingerMsg');
+    if(!msg){clearInterval(fingerTimer);return;}
+    if(Object.keys(fingerTouches).length<2){
+      clearInterval(fingerTimer); fingerArmed=false;
+      msg.innerHTML='Posez tous un doigt dans la zone (2 minimum)…<br>tirage automatique dans 3 secondes !';
+      return;
+    }
+    msg.textContent='Tirage dans '+n+'…'; snd('tap'); vib(15);
+    n--;
+    if(n<0){
+      clearInterval(fingerTimer);
+      const ids=Object.keys(fingerTouches);
+      const w=ids[Math.floor(Math.random()*ids.length)];
+      const d=z.querySelector(`.fdot[data-fid="${w}"]`);
+      if(d){d.style.borderColor='var(--acid)';d.style.background='rgba(232,255,71,.4)';d.style.boxShadow='0 0 34px rgba(232,255,71,.9)';}
+      msg.innerHTML='🎯 <b style="color:var(--acid)">LE DESTIN A CHOISI !</b> Le doigt illuminé est désigné.';
+      snd('end'); vib([80,50,80,50,160]);
+      fingerArmed=false;
+    }
+  },900);
+}
+function fingerClose(){clearInterval(fingerTimer);fingerArmed=false;document.getElementById('roul').style.display='none';}
+
 /* ----- Duel Express : régler une rivalité en 30 secondes ----- */
 let duelSel=[];
 function openDuel(){duelSel=[];duelUI();}
@@ -1968,19 +2196,22 @@ function renderPyramide(c,card,badgeHtml){
     }
   }else{
     const tollCard=`<div class="pc toll"><span class="tollx">🚧</span><span class="tolltxt">PÉAGE</span></div>`;
-    const roadHtml=pcHTML(c._start)+c._road.map((it,i)=>{
-      if(it.t==='t')return tollCard;
-      return i<c._ri?pcHTML(it.cd):pcHTML(null);
+    const done=c._pos>=c._road.length;
+    const iciA=`<div style="font-size:9px;color:var(--acid);font-weight:800;margin-top:2px;letter-spacing:.08em">ICI</div>`;
+    const iciC=`<div style="font-size:9px;color:var(--coral);font-weight:800;margin-top:2px;letter-spacing:.08em">ICI</div>`;
+    const roadHtml=c._road.map((it,i)=>{
+      if(it.t==='t')return `<div style="text-align:center">${tollCard}${i===c._pos?iciC:''}</div>`;
+      return `<div style="text-align:center">${pcHTML(it.cd,i===c._pos?'ref':'')}${i===c._pos?iciA:''}</div>`;
     }).join('');
-    const done=c._ri>=c._road.length;
-    const curIt=done?null:c._road[c._ri];
+    const curIt=done?null:c._road[c._pos];
     let controls;
-    if(done){controls=`<div class="cardbtns"><button class="btn" onclick="next()">TERMINER →</button></div>`;}
+    if(done){controls=`<div class="cardbtns"><button class="btn" onclick="next()">TERMINER →</button></div>
+      <button class="btn ghost" style="margin-top:8px;padding:9px;font-size:12px" onclick="pyRestart()">🔁 ${c.m==='route'?'RELANCER UNE AUTOROUTE':'RELANCER UNE PYRAMIDE COMPLÈTE'}</button>`;}
     else if(curIt.t==='t'){controls=`<div class="cardbtns"><button class="btn coral" onclick="pyToll()">🚧 PAYER LE PÉAGE (${alcohol?'1 gorgée':'3 squats'}) →</button></div>`;}
     else{controls=`<div class="cardbtns"><button class="btn cyan" onclick="pyGuess(1)">PLUS ⬆</button><button class="btn coral" onclick="pyGuess(-1)">MOINS ⬇</button></div>`;}
-    inner=`<div style="text-align:center;font-family:'Unbounded';font-size:11px;letter-spacing:.12em;color:var(--dim);margin-top:8px">L'AUTOROUTE · TENTATIVE ${c._try} · PÉAGES PAYÉS : ${c._tolls}</div>
-      <div class="pcards" style="margin:12px 0">${roadHtml}</div>
-      <div style="text-align:center;font-size:13px;min-height:48px;line-height:1.55">${c._msg||`Plus ou moins que <b style="color:var(--acid)">${c._ref.rank}</b> ? (As = la plus haute · égalité = perdu !)`}</div>
+    inner=`<div style="text-align:center;font-family:'Unbounded';font-size:11px;letter-spacing:.12em;color:var(--dim);margin-top:8px">L'AUTOROUTE · ERREURS : ${c._errs||0} · PÉAGES : ${c._tolls}</div>
+      <div class="pcards pyr" style="margin:12px 0;gap:5px">${roadHtml}</div>
+      <div style="text-align:center;font-size:13px;min-height:48px;line-height:1.55">${c._msg||(done?'':`On tire une carte de la pioche : sera-t-elle PLUS ou MOINS haute que le <b style="color:var(--acid)">${curIt.t==='c'?curIt.cd.rank:'?'}</b> où tu te trouves ? (As = la plus haute · égalité = perdu · la carte tirée prendra sa place !)`)}</div>
       ${controls}`;
   }
   card.innerHTML=badgeHtml+inner;
@@ -1992,17 +2223,34 @@ function pyFinal(){const c=deck[idx];c._fdone=true;snd('reveal');vib(60);renderC
 function pyBuildRoad(){
   return [{t:'c',cd:drawPC()},{t:'c',cd:drawPC()},{t:'t'},{t:'c',cd:drawPC()},{t:'c',cd:drawPC()},{t:'t'},{t:'c',cd:drawPC()}];
 }
+function buildRoadN(n){
+  const a=[];
+  for(let i=0;i<n;i++){a.push({t:'c',cd:drawPC()},{t:'c',cd:drawPC()},{t:'t'});}
+  a.push({t:'c',cd:drawPC()});
+  return a;
+}
+function routeStart(n){
+  const c=deck[idx];
+  c._phase='auto'; c._ntolls=n;
+  c._road=buildRoadN(n);
+  c._pos=0; c._tolls=0; c._errs=0; c._msg='';
+  snd('reveal'); renderCard();
+}
+function pyRestart(){
+  const c=deck[idx];
+  ['_phase','_seq','_di','_show','_hands','_rows','_flat','_pi','_final','_fdone','_recall','_mi','_mshow','_contest','_cname','_slot','_start','_ref','_road','_ri','_pos','_tolls','_try','_errs','_msg','_ntolls'].forEach(k=>delete c[k]);
+  snd('add'); renderCard();
+}
 function pyRoad(){
   const c=deck[idx];c._phase='auto';
-  c._start=drawPC();c._ref=c._start;
   c._road=pyBuildRoad();
-  c._ri=0;c._tolls=0;c._try=1;c._msg='';
+  c._pos=0;c._tolls=0;c._errs=0;c._msg='';
   snd('reveal');renderCard();
 }
 function pyToll(){
-  const c=deck[idx];c._tolls++;c._ri++;
-  const nxtIsToll=c._ri<c._road.length&&c._road[c._ri].t==='t';
-  c._msg=`🚧 Péage réglé ! La route continue… ${nxtIsToll?'et un autre péage ?!':`plus ou moins que <b style="color:var(--acid)">${c._ref.rank}</b> ?`}`;
+  const c=deck[idx];c._tolls++;c._pos++;
+  const cur=c._pos<c._road.length?c._road[c._pos]:null;
+  c._msg=`🚧 Péage réglé !${cur&&cur.t==='c'?` Tu avances sur le <b style="color:var(--acid)">${cur.cd.rank}${cur.cd.suit}</b> : prochaine carte tirée, plus ou moins ?`:''}`;
   snd('tap');vib(40);renderCard();
 }
 function pyRecallStart(){const c=deck[idx];c._phase='recall';c._mi=0;c._mshow=false;snd('event');renderCard();}
@@ -2013,29 +2261,39 @@ function pyContestCancel(){deck[idx]._contest=null;snd('tap');renderCard();}
 function pyAccuse(n){const c=deck[idx];c._cname=n;c._contest='slot';snd('tap');renderCard();}
 function pySlot(i){const c=deck[idx];c._slot=i;c._contest='show';snd('reveal');vib(60);renderCard();}
 
+function botch(){
+  const d=document.createElement('div');
+  d.className='botch'; d.innerHTML='<span>PILLAVE<br>BOTCH !!</span>';
+  document.body.appendChild(d);
+  setTimeout(()=>{d.style.transition='.3s';d.style.opacity='0'},1150);
+  setTimeout(()=>d.remove(),1500);
+}
 function pyGuess(g){
   const c=deck[idx];
-  const nxt=c._road[c._ri].cd;
-  const diff=nxt.v-c._ref.v;
+  const cur=c._road[c._pos].cd;
+  const drawn=drawPC();
+  const diff=drawn.v-cur.v;
   const ok=(g>0&&diff>0)||(g<0&&diff<0);
+  c._road[c._pos].cd=drawn; // gagné ou perdu, la carte tirée remplace celle de la position
   if(ok){
-    c._ri++; c._ref=nxt;
-    if(c._ri>=c._road.length){
-      c._msg=`<b style="color:var(--acid)">${nxt.rank}${nxt.suit}</b> — 🏆 <b style="color:var(--acid)">AUTOROUTE TERMINÉE</b> en ${c._try} tentative${c._try>1?'s':''} ! Tu ${alcohol?'distribues 4 gorgées':'donnes 2 gages'} à qui tu veux.`;
+    c._pos++;
+    if(c._pos>=c._road.length){
+      c._msg=`<b style="color:var(--acid)">${drawn.rank}${drawn.suit}</b> — dernière carte franchie ! `+((c._errs||0)===0
+        ? `🏆 <b style="color:var(--acid)">AUTOROUTE PARFAITE !</b> Tu ${alcohol?'distribues 4 gorgées':'donnes 2 gages'} à qui tu veux.`
+        : `🏁 Arrivé à destination avec <b>${c._errs}</b> erreur${c._errs>1?'s':''} en chemin.`);
       snd('end'); vib([60,40,60,40,120]);
-    }else if(c._road[c._ri].t==='t'){
-      c._msg=`<b style="color:var(--acid)">${nxt.rank}${nxt.suit}</b> — tu passes… mais un 🚧 PÉAGE se dresse devant toi !`;
+    }else if(c._road[c._pos].t==='t'){
+      c._msg=`<b style="color:var(--acid)">${drawn.rank}${drawn.suit}</b> — tu passes… mais un 🚧 PÉAGE bloque la route !`;
       snd('win');
     }else{
-      c._msg=`<b style="color:var(--acid)">${nxt.rank}${nxt.suit}</b> — tu passes ! Plus ou moins que <b style="color:var(--acid)">${nxt.rank}</b> ?`;
+      c._msg=`<b style="color:var(--acid)">${drawn.rank}${drawn.suit}</b> — tu passes ! Prochaine carte tirée : plus ou moins que le <b style="color:var(--acid)">${c._road[c._pos].cd.rank}</b> ?`;
       snd('win');
     }
   }else{
-    c._try++;
-    c._start=drawPC(); c._ref=c._start;
-    c._road=pyBuildRoad(); c._ri=0;
-    c._msg=`<b style="color:var(--coral)">${nxt.rank}${nxt.suit}</b> — RATÉ ! ${alcohol?'Bois 1 gorgée':'5 squats'} et <b style="color:var(--coral)">RETOUR AU DÉPART</b>, nouvelles cartes. Plus ou moins que <b style="color:var(--acid)">${c._ref.rank}</b> ?`;
-    snd('fail'); vib(150);
+    c._errs=(c._errs||0)+1;
+    c._pos=0;
+    c._msg=`<b style="color:var(--coral)">${drawn.rank}${drawn.suit}</b> — RATÉ ! ${alcohol?'Bois 1 gorgée':'5 squats'} et <b style="color:var(--coral)">RETOUR AU DÉPART</b>. La carte tirée reste sur la route… Repars : plus ou moins que le <b style="color:var(--acid)">${c._road[0].cd.rank}</b> ?`;
+    botch(); snd('fail'); vib([120,60,180]);
   }
   renderCard();
 }
@@ -2252,6 +2510,13 @@ function showRoast(kind,n){
   pendingRoast={k:kind,t:pool[Math.floor(Math.random()*pool.length)].replace(/{n}/g,n)};
 }
 
+function renderSipBar(){
+  const z=document.getElementById('sipbar'); if(!z)return;
+  if(!alcohol){z.innerHTML='';return;}
+  z.innerHTML=`<span style="font-size:10px;color:var(--dim)">🍺 tap = 1 gorgée</span>`+players.map(pl=>`<button class="sipchip" onclick="addSip('${pl.n.replace(/'/g,"\\'")}')">${pl.e}<span>${stats.sips[pl.n]||0}</span></button>`).join('');
+}
+function addSip(n){stats.sips[n]=(stats.sips[n]||0)+1;snd('tap');vib(10);renderSipBar();}
+
 function win(p){stats.done[p]=(stats.done[p]||0)+1;snd('win');showRoast('win',p);next()}
 function fail(p){stats.sanctions[p]=(stats.sanctions[p]||0)+1;snd('fail');showRoast('fail',p);next()}
 function next(){
@@ -2269,7 +2534,13 @@ function updateHud(){
     const d2=document.createElement('button');
     d2.className='cardDice duelBtn'; d2.textContent='⚔️'; d2.onclick=openDuel;
     gc.appendChild(d2);
+    const d3=document.createElement('button');
+    d3.className='cardDice fingerBtn'; d3.textContent='👆'; d3.onclick=openFinger;
+    gc.appendChild(d3);
   }
+  let sb=document.getElementById('sipbar');
+  if(!sb){sb=document.createElement('div');sb.id='sipbar';document.getElementById('game').appendChild(sb);}
+  renderSipBar();
 }
 
 /* ---------- fin ---------- */
@@ -2281,19 +2552,22 @@ function topOf(obj){
 function endGame(){
   clearInterval(timerInt); clearTimeout(bombTimeout);
   snd('end');
-  const rows=players.map(x=>`<div class="stat" style="padding:10px 14px"><span class="ic">${x.e}</span><div style="flex:1"><div class="vl" style="font-size:13px">${x.n}</div><div class="lb">💪 ${stats.done[x.n]||0} défis relevés · 😈 ${stats.sanctions[x.n]||0} sanctions subies · 🎯 ciblé ${stats.targeted[x.n]||0} fois</div></div></div>`).join('');
+  const rows=players.map(x=>`<div class="stat" style="padding:10px 14px"><span class="ic">${x.e}</span><div style="flex:1"><div class="vl" style="font-size:13px">${x.n}</div><div class="lb">${alcohol?`🍺 ${stats.sips[x.n]||0} gorgées · `:''}💪 ${stats.done[x.n]||0} défis relevés · 😈 ${stats.sanctions[x.n]||0} sanctions · 🎯 ciblé ${stats.targeted[x.n]||0} fois</div></div></div>`).join('');
   document.getElementById('stats').innerHTML=`
     <div class="stat"><span class="ic">🎯</span><div><div class="lb">Star de la soirée (le plus ciblé)</div><div class="vl">${topOf(stats.targeted)}</div></div></div>
     <div class="stat"><span class="ic">💪</span><div><div class="lb">Machine à défis (le plus de défis relevés)</div><div class="vl">${topOf(stats.done)}</div></div></div>
     <div class="stat"><span class="ic">😈</span><div><div class="lb">Aimant à sanctions</div><div class="vl">${topOf(stats.sanctions)}</div></div></div>
+    ${alcohol?`<div class="stat"><span class="ic">🍺</span><div><div class="lb">Pilier de comptoir (gorgées comptées)</div><div class="vl">${topOf(stats.sips)}</div></div></div>`:''}
     <div style="font-family:'Unbounded';font-size:11px;letter-spacing:.1em;color:var(--dim);margin:18px 0 4px;text-align:left">RÉCAP PAR JOUEUR</div>${rows}`;
   go('end');
 }
 /* ----- récap de soirée en image (story-ready) ----- */
 function rrect(x,px,py,w,h,r){x.beginPath();x.moveTo(px+r,py);x.arcTo(px+w,py,px+w,py+h,r);x.arcTo(px+w,py+h,px,py+h,r);x.arcTo(px,py+h,px,py,r);x.arcTo(px,py,px+w,py,r);x.closePath();}
 function shareRecap(){
+  const lines=[['🎯 STAR DE LA SOIRÉE',topOf(stats.targeted)],['💪 MACHINE À DÉFIS',topOf(stats.done)],['😈 AIMANT À SANCTIONS',topOf(stats.sanctions)]];
+  if(alcohol)lines.push(['🍺 PILIER DE COMPTOIR',topOf(stats.sips)]);
   const rowH=players.length>7?64:82;
-  const H=Math.max(1350, 340+3*134+70+players.length*rowH+160);
+  const H=Math.max(1350, 340+lines.length*134+70+players.length*rowH+160);
   const cv=document.createElement('canvas'); cv.width=1080; cv.height=H;
   const x=cv.getContext('2d');
   x.fillStyle='#100714'; x.fillRect(0,0,1080,H);
@@ -2307,7 +2581,6 @@ function shareRecap(){
   x.restore();
   x.textAlign='center'; x.font='700 32px Sora, sans-serif'; x.fillStyle='#a893b8';
   x.fillText('LE RÉCAP DE LA SOIRÉE · '+new Date().toLocaleDateString('fr-FR'),540,268);
-  const lines=[['🎯 STAR DE LA SOIRÉE',topOf(stats.targeted)],['💪 MACHINE À DÉFIS',topOf(stats.done)],['😈 AIMANT À SANCTIONS',topOf(stats.sanctions)]];
   let y=330;
   lines.forEach(l=>{
     x.fillStyle='rgba(34,17,48,.95)'; rrect(x,90,y,900,110,26); x.fill();
@@ -2324,7 +2597,7 @@ function shareRecap(){
     x.textAlign='left'; x.font='700 '+(rowH>70?32:26)+'px Sora, sans-serif'; x.fillStyle='#f6eefb';
     x.fillText(pl.e+'  '+pl.n,120,y+(rowH-10)/2+11);
     x.textAlign='right'; x.font='600 '+(rowH>70?26:22)+'px Sora, sans-serif'; x.fillStyle='#a893b8';
-    x.fillText('💪 '+(stats.done[pl.n]||0)+'   😈 '+(stats.sanctions[pl.n]||0)+'   🎯 '+(stats.targeted[pl.n]||0),960,y+(rowH-10)/2+9);
+    x.fillText((alcohol?'🍺 '+(stats.sips[pl.n]||0)+'   ':'')+'💪 '+(stats.done[pl.n]||0)+'   😈 '+(stats.sanctions[pl.n]||0)+'   🎯 '+(stats.targeted[pl.n]||0),960,y+(rowH-10)/2+9);
     y+=rowH;
   });
   x.textAlign='center'; x.font='600 26px Sora, sans-serif'; x.fillStyle='#5d4a6e';
@@ -2340,8 +2613,8 @@ function shareRecap(){
 function replay(){
   buildDeck();idx=0;roulUses=3;multLeft=0;pendingRoast=null;
   if(teamCount>1) deck.unshift({m:'teams'});
-  stats={targeted:{},sanctions:{},done:{}};
-  players.forEach(p=>{stats.targeted[p.n]=0;stats.sanctions[p.n]=0;stats.done[p.n]=0});
+  stats={targeted:{},sanctions:{},done:{},sips:{}};
+  players.forEach(p=>{stats.targeted[p.n]=0;stats.sanctions[p.n]=0;stats.done[p.n]=0;stats.sips[p.n]=0});
   go('game');renderCard();
 }
 </script>
